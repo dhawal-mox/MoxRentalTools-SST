@@ -55,7 +55,7 @@ importers:
         specifier: ^2.2.4
         version: 2.2.4(react-dom@18.2.0)(react@18.2.0)
       aws-amplify:
-        specifier: ^5
+        specifier: ^5.3.16
         version: 5.3.16(react-native@0.73.4)
       bootstrap:
         specifier: ^5.3.3
