@@ -15,6 +15,7 @@ export function ApiStack({ stack }: StackContext) {
     routes: {
       "POST /users": "packages/functions/src/createUser.main",
       "GET /users/{id}": "packages/functions/src/getUser.main",
+      "PUT /users/{id}/role": "packages/functions/src/updateUserRole.main",
     },
   });
 

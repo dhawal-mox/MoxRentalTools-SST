@@ -13,6 +13,7 @@ function App() {
 
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [isAuthenticated, userHasAuthenticated] = useState(false);
+  const [user, setUser] = useState({});
   const nav = useNavigate();
 
   useEffect(() => {
@@ -64,7 +65,7 @@ function App() {
           </Navbar.Collapse>
         </Navbar>
         <AppContext.Provider
-          value={{ isAuthenticated, userHasAuthenticated } as AppContextType}
+          value={{ isAuthenticated, userHasAuthenticated, user, setUser } as AppContextType}
         >
           <Routes />
         </AppContext.Provider>

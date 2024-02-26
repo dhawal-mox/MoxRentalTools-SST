@@ -28,6 +28,6 @@ export const main = handler(async (event) => {
   };
 
   await dynamoDb.put(params);
-
+  delete params.Item.identityId;
   return JSON.stringify(params.Item);
 });

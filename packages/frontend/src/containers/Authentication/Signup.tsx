@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import { useNavigate } from "react-router-dom";
-import { useFormFields } from "../lib/hooksLib";
-import { useAppContext } from "../lib/contextLib";
-import LoaderButton from "../components/LoaderButton";
+import { useFormFields } from "../../lib/hooksLib";
+import { useAppContext } from "../../lib/contextLib";
+import LoaderButton from "../../components/LoaderButton";
 import "./Signup.css";
 import { Auth } from "aws-amplify";
-import { onError } from "../lib/errorLib";
+import { onError } from "../../lib/errorLib";
 import { ISignUpResult } from "amazon-cognito-identity-js";
+import createUser from "../../lib/userLib";
 
 export default function Signup() {
   const [fields, handleFieldChange] = useFormFields({
@@ -16,17 +17,22 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
     confirmationCode: "",
+    firstName: "",
+    lastName: "",
   });
   const nav = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const [newUser, setNewUser] = useState<null | ISignUpResult>(null);
+  const { setUser } = useAppContext();
 
   function validateForm() {
     return (
       fields.email.length > 0 &&
       fields.password.length > 0 &&
-      fields.password === fields.confirmPassword
+      fields.password === fields.confirmPassword &&
+      fields.firstName.length > 0 &&
+      fields.lastName.length > 0
     );
   }
 
@@ -58,6 +64,12 @@ export default function Signup() {
     try {
       await Auth.confirmSignUp(fields.email, fields.confirmationCode);
       await Auth.signIn(fields.email, fields.password);
+      const user = await createUser({
+        first_name: fields.firstName,
+        last_name: fields.lastName,
+        email: fields.email,
+      });
+      setUser(user);
       userHasAuthenticated(true);
       nav("/");
     } catch (e) {
@@ -125,6 +137,24 @@ export default function Signup() {
               type="password"
               onChange={handleFieldChange}
               value={fields.confirmPassword}
+            />
+          </Form.Group>
+          <Form.Group controlId="firstName">
+            <Form.Label>First Name</Form.Label>
+            <Form.Control
+              size="lg"
+              type="text"
+              onChange={handleFieldChange}
+              value={fields.firstName}
+            />
+          </Form.Group>
+          <Form.Group controlId="lastName">
+            <Form.Label>Last Name</Form.Label>
+            <Form.Control
+              size="lg"
+              type="text"
+              onChange={handleFieldChange}
+              value={fields.lastName}
             />
           </Form.Group>
           <LoaderButton

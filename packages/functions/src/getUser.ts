@@ -7,7 +7,7 @@ export const main = handler(async (event) => {
     const params = {
         TableName: Table.Users.tableName,
         Key: {
-            userId: "123",
+            userId: event.pathParameters?.userId,
         },
     };
 
@@ -17,5 +17,6 @@ export const main = handler(async (event) => {
     }
 
     // Return the retreived item
+    delete result.Item?.identityId;
     return JSON.stringify(result.Item);
 });

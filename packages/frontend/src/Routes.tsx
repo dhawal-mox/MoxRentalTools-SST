@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import Home from "./containers/Home.tsx";
 import NotFound from "./containers/NotFound.tsx";
-import Login from "./containers/Login.tsx";
-import Signup from "./containers/Signup.tsx";
+import Login from "./containers/Authentication/Login.tsx";
+import Signup from "./containers/Authentication/Signup.tsx";
 import AuthenticatedRoute from "./components/AuthenticatedRoute.tsx";
 import UnauthenticatedRoute from "./components/UnauthenticatedRoute.tsx";
 
