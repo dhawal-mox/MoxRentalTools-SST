@@ -71,7 +71,7 @@ export default function Signup() {
       });
       setUser(user);
       userHasAuthenticated(true);
-      nav("/");
+      nav("/selectRole");
     } catch (e) {
       onError(e);
       setIsLoading(false);

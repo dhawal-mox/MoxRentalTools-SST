@@ -7,6 +7,7 @@ import { useAppContext } from "../../lib/contextLib";
 import LoaderButton from "../../components/LoaderButton";
 import { onError } from "../../lib/errorLib";
 import { useFormFields } from "../../lib/hooksLib";
+import { getCurrentUser } from "../../lib/userLib";
 
 export default function Login() {
   const [fields, handleFieldChange] = useFormFields({
@@ -16,6 +17,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { userHasAuthenticated } = useAppContext();
+  const { setUser } = useAppContext();
 
   function validateForm() {
     return fields.email.length > 0 && fields.password.length > 0;
@@ -27,13 +29,14 @@ export default function Login() {
 
     try {
         await Auth.signIn(fields.email, fields.password);
+        setUser(await getCurrentUser());
         userHasAuthenticated(true);
     } catch (error) {
         // Prints the full error
         onError(error);
         setIsLoading(false);
     }
-}
+  }
 
   return (
     <div className="Login">

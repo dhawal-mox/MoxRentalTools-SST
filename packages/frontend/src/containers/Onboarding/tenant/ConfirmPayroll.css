@@ -1,0 +1,57 @@
+@media all and (min-width: 480px) {
+    /* .ConfirmPayroll {
+      margin-left: auto;
+      margin-right: auto;
+    } */
+
+    .Form {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .resultList {
+        /* max-width: 480px; */
+        margin: auto;
+        width: 480px;
+    }
+
+    .searchButton {
+        margin: auto;
+    }
+
+    .labelAndInput {
+        margin: auto;
+    }
+
+    .institutionTypeRadioButtons {
+        margin: auto;
+    }
+
+    .description {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 480px;
+        text-align: center;
+    }
+
+    h3 {
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .continueButton{
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .supportedBadge {
+        /* float: right; */
+        margin-left: auto;
+    }
+
+    .upperRow {
+        display: flex;
+        align-items: flex-end;
+        align-content: space-between;
+    }
+  }

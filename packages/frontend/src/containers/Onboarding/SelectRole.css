@@ -1,0 +1,17 @@
+@media all and (min-width: 480px) {
+    .CardContainer {
+      margin: auto;
+    }
+  
+    .card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .headerText {
+        margin-left: auto;
+        margin-right: auto;
+    }
+  }

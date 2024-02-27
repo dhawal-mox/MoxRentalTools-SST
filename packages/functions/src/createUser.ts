@@ -24,10 +24,22 @@ export const main = handler(async (event) => {
       last_name: data.last_name,
       email: data.email,
       createdAt: Date.now(), // Current Unix timestamp
+      role: "",
     },
   };
 
   await dynamoDb.put(params);
+
+  const userIdentityParams = {
+    TableName: Table.UserIdentities.tableName,
+    Item: {
+      userId: params.Item.userId,
+      identityId: params.Item.identityId,
+    },
+  };
+
+  await dynamoDb.put(userIdentityParams);
+
   delete params.Item.identityId;
   return JSON.stringify(params.Item);
 });

@@ -7,7 +7,7 @@ export const main = handler(async (event) => {
     const params = {
         TableName: Table.Users.tableName,
         Key: {
-            userId: event.pathParameters?.userId,
+            userId: event.pathParameters?.id,
         },
     };
 

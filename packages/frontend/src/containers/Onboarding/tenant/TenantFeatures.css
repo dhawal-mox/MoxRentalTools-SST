@@ -1,0 +1,19 @@
+@media all and (min-width: 480px) {
+    .TenantFeatures {
+      margin: auto;
+    }
+
+    .headerText .pageStack {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .overviewList {
+        /* max-width: 480px; */
+        margin: auto;
+    }
+
+    .letsGoButton {
+        margin: auto;
+    }
+  }

@@ -8,6 +8,7 @@ import { AppContext, AppContextType } from "./lib/contextLib";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router-dom";
 import { onError } from "./lib/errorLib";
+import { getCurrentUser } from "./lib/userLib";
 
 function App() {
 
@@ -23,6 +24,8 @@ function App() {
   async function onLoad() {
     try {
       await Auth.currentSession();
+      const user = await getCurrentUser();
+      setUser(user);
       userHasAuthenticated(true);
     } catch (e) {
       if (e !== "No current user") {
@@ -44,7 +47,7 @@ function App() {
       <div className="App container py-3">
         <Navbar collapseOnSelect bg="light" expand="md" className="mb-3 px-3">
           <LinkContainer to="/">
-            <Navbar.Brand className="fw-bold text-muted">Scratch</Navbar.Brand>
+            <Navbar.Brand className="fw-bold text-muted">MOX Rental Tools</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">

@@ -4,4 +4,11 @@ export interface UserType {
     last_name?: string;
     email?: string;
     createdAt?: string;
+    role?: UserRole;
+}
+
+export enum UserRole {
+    Tenant = 'tenant',
+    Landlord = 'landlord',
+    Agent = 'agent',
 }
