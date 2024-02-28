@@ -8,8 +8,8 @@ import UnauthenticatedRoute from "./components/UnauthenticatedRoute.tsx";
 import SelectRole from "./containers/Onboarding/SelectRole.tsx";
 import TenantFeatures from "./containers/Onboarding/tenant/TenantFeatures.tsx";
 import ConfirmPayroll from "./containers/Onboarding/tenant/ConfirmPayroll.tsx";
-import StripePayment from "./containers/Onboarding/StripePayment.tsx";
 import StripePurchase from "./containers/Onboarding/StripePurchase.tsx";
+import StripeIDVerification from "./containers/Onboarding/StripeIDVerification.tsx";
 
 export default function Links() {
   return (
@@ -46,14 +46,14 @@ export default function Links() {
           <ConfirmPayroll />
         </AuthenticatedRoute>
       } />
-      <Route path="/payment" element={
-        <AuthenticatedRoute>
-          <StripePayment />
-        </AuthenticatedRoute>
-      } />
       <Route path="/purchase" element={
         <AuthenticatedRoute>
           <StripePurchase />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/idVerify" element={
+        <AuthenticatedRoute>
+          <StripeIDVerification />
         </AuthenticatedRoute>
       } />
     </Routes>

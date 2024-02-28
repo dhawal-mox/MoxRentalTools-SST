@@ -8,7 +8,7 @@ import { AppContext, AppContextType } from "./lib/contextLib";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router-dom";
 import { onError } from "./lib/errorLib";
-import { getCurrentUser } from "./lib/userLib";
+import { getCurrentUser, getUserPurchased } from "./lib/userLib";
 
 function App() {
 
@@ -24,7 +24,8 @@ function App() {
   async function onLoad() {
     try {
       await Auth.currentSession();
-      const user = await getCurrentUser();
+      let user = await getCurrentUser();
+      user = await getUserPurchased(user);
       setUser(user);
       userHasAuthenticated(true);
     } catch (e) {

@@ -1,4 +1,5 @@
 import { API } from "aws-amplify";
+import { UserType } from "../types/user";
 
 export function createStripePaymentIntent() {
     return API.post("mox", `/stripe/createPaymentIntent`, {
@@ -6,10 +7,10 @@ export function createStripePaymentIntent() {
     });
 }
 
-export function createStripeCheckoutSession(userRole: string) {
+export function createStripeCheckoutSession(user: UserType) {
     return API.post("mox", `/stripe/createCheckoutSession`, {
         body: {
-            userRole: `${userRole}`,
+            user: user,
         }
     })
 }

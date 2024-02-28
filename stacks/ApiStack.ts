@@ -2,7 +2,7 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable } = use(StorageStack);
+  const { usersTable, userIdentityTable, stripeCheckoutSessions } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
 
@@ -12,6 +12,7 @@ export function ApiStack({ stack }: StackContext) {
       function: {
         bind: [usersTable,
               userIdentityTable,
+              stripeCheckoutSessions,
               STRIPE_PUBLISHABLE_KEY,
               STRIPE_SECRET_KEY
               ],
@@ -23,9 +24,11 @@ export function ApiStack({ stack }: StackContext) {
       "GET /users/{id}": "packages/functions/src/users/getUser.main",
       "GET /users/user": "packages/functions/src/users/getCurrentUser.main",
       "POST /users/{id}/role": "packages/functions/src/users/updateUserRole.main",
+      "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
+
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
-      "POST /stripe/createPaymentIntent": "packages/functions/src/stripe/createPaymentIntent.main",
-      "POST /stripe/createCheckoutSession": "packages/functions/src/stripe/createCheckoutSession.main"
+
+      "POST /stripe/createCheckoutSession": "packages/functions/src/stripe/createCheckoutSession.main",
     },
   });
 
@@ -37,5 +40,7 @@ export function ApiStack({ stack }: StackContext) {
   // Return the API resource
   return {
     api,
+    STRIPE_PUBLISHABLE_KEY,
+    STRIPE_SECRET_KEY,
   };
 }

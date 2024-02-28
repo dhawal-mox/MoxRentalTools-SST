@@ -3,6 +3,7 @@ import { StorageStack } from "./stacks/StorageStack";
 import { ApiStack } from "./stacks/ApiStack";
 import { AuthStack } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
+import { WebhookStack } from "./stacks/WebhookStack";
 
 export default {
   config(_input) {
@@ -16,7 +17,8 @@ export default {
     .stack(StorageStack)
     .stack(ApiStack)
     .stack(AuthStack)
-    .stack(FrontendStack);
+    .stack(FrontendStack)
+    .stack(WebhookStack);
     
     // Remove all resources when non-prod stages are removed
     if (app.stage !== "prod") {

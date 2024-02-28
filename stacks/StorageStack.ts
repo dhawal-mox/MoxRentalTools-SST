@@ -21,12 +21,26 @@ export function StorageStack({ stack }: StackContext) {
     },
     primaryIndex: { partitionKey: "identityId" },
   });
+
+  const stripeCheckoutSessions = new Table(stack, "StripePurchases", {
+    fields: {
+      userId: "string",
+      timestamp: "number",
+      customerEmail: "string",
+      priceId: "string",
+      sessionId: "string",
+      userRole: "string",
+      expiration: "number",
+    },
+    primaryIndex: { partitionKey: "userId" }
+  })
   // Create an S3 bucket
   const bucket = new Bucket(stack, "Uploads");
 
   return {
     usersTable,
     userIdentityTable,
+    stripeCheckoutSessions,
     bucket,
   };
 }

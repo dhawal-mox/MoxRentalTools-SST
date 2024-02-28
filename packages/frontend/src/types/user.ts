@@ -5,6 +5,8 @@ export interface UserType {
     email?: string;
     createdAt?: string;
     role?: UserRole;
+    purchased?: boolean;
+    expiration?: string;
 }
 
 export enum UserRole {
