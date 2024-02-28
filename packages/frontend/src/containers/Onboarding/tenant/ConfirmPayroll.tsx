@@ -90,7 +90,7 @@ export default function ConfirmPayroll() {
                 <Stack gap={3}>
                     <h3 className="description">Supported Institutions:</h3>
                     <ListGroup className="resultList">
-                        {supportedInstitutions && supportedInstitutions.map((institution, index) => (
+                        {supportedInstitutions && supportedInstitutions.map((institution) => (
                             <ListGroup.Item key={institution.name} className="list-item-right-control">
                                 <div className="upperRow">
                                     <div className="fw-bold">{institution.name}</div>

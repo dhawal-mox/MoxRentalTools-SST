@@ -23,7 +23,7 @@ Amplify.configure({
   API: {
     endpoints: [
       {
-        name: "users",
+        name: "mox",
         endpoint: config.apiGateway.URL,
         region: config.apiGateway.REGION,
       },

@@ -1,4 +1,5 @@
 const config = {
+  STRIPE_PUBLIC_KEY: "pk_test_51OYabUDQM8goeywJKgIY0hYReAm5YFburHlJqiCC20VlSm1PPldQREmsEseqAADMMW4ZZRHt7rzLkeK4dXtx7uO700spmXMb0Z",
   // Backend config
   s3: {
     REGION: import.meta.env.VITE_REGION,

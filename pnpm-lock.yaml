@@ -54,6 +54,12 @@ importers:
       '@auth0/auth0-react':
         specifier: ^2.2.4
         version: 2.2.4(react-dom@18.2.0)(react@18.2.0)
+      '@stripe/react-stripe-js':
+        specifier: ^2.5.1
+        version: 2.5.1(@stripe/stripe-js@3.0.6)(react-dom@18.2.0)(react@18.2.0)
+      '@stripe/stripe-js':
+        specifier: ^3.0.6
+        version: 3.0.6
       aws-amplify:
         specifier: ^5.3.16
         version: 5.3.16(react-native@0.73.4)
@@ -139,6 +145,9 @@ importers:
       plaid:
         specifier: ^21.0.0
         version: 21.0.0
+      stripe:
+        specifier: ^14.18.0
+        version: 14.18.0
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -6658,6 +6667,24 @@ packages:
       tslib: 2.6.2
     dev: true
 
+  /@stripe/react-stripe-js@2.5.1(@stripe/stripe-js@3.0.6)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-95BwDhOkl1TwIn5sldWW35GYt6wx+uYuwGjebaMOpOdHGyBKcDnBhTjIww+bUdmA2oCmpUqKnoB4OZJuqK8tJA==}
+    peerDependencies:
+      '@stripe/stripe-js': ^1.44.1 || ^2.0.0 || ^3.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@stripe/stripe-js': 3.0.6
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@stripe/stripe-js@3.0.6:
+    resolution: {integrity: sha512-Ef3A0/zvgKbiMdCPT+rZgQBQqhNZ66wuR6Eg2w9YUuqykcIFFKU4nYApBr05WTvInrge8GuOqY5acSDiv6DOjA==}
+    engines: {node: '>=12.16'}
+    dev: false
+
   /@swc/helpers@0.5.6:
     resolution: {integrity: sha512-aYX01Ke9hunpoCexYAgQucEpARGQ5w/cqHFrIR+e9gdKb1QWTsVJuTJ2ozQzIAxLyRQe/m+2RqzkyOOGiMKRQA==}
     dependencies:
@@ -11829,6 +11856,14 @@ packages:
     dependencies:
       js-tokens: 8.0.3
     dev: true
+
+  /stripe@14.18.0:
+    resolution: {integrity: sha512-yLqKPqYgGJbMxrQiE4+i2i00ZVA2NRIZbZ1rejzj5XR3F3Uc+1iy9QE133knZudhVGMw367b8vTpB8D9pYMETw==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@types/node': 20.11.20
+      qs: 6.11.2
+    dev: false
 
   /strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
