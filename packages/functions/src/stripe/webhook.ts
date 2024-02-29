@@ -17,7 +17,7 @@ export const main = handler(async (event) => {
         const userId = sessionWithLineItems.client_reference_id;
         const customerEmail = sessionWithLineItems.customer_email;
         const userRole = sessionWithLineItems.metadata!.userRole;
-        console.log(`successful stripe payment for userId - ${userId} and email - ${customerEmail} and priceId - ${priceId}`);
+        // console.log(`successful stripe payment for userId - ${userId} and email - ${customerEmail} and priceId - ${priceId}`);
         const timestamp = Date.now();
         const params = {
             TableName: Table.StripePurchases.tableName,

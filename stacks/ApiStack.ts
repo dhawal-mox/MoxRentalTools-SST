@@ -29,6 +29,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
 
       "POST /stripe/createCheckoutSession": "packages/functions/src/stripe/createCheckoutSession.main",
+      "GET /stripe/publishableKey": "packages/functions/src/stripe/getPublishableKey.main",
+      "POST /stripe/createVerificationSession": "packages/functions/src/stripe/createVerificationSession.main",
     },
   });
 

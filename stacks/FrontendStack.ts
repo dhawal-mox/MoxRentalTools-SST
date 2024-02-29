@@ -1,4 +1,4 @@
-import { StackContext, StaticSite, use } from "sst/constructs";
+import { Config, StackContext, StaticSite, use } from "sst/constructs";
 import { ApiStack } from "./ApiStack";
 import { AuthStack } from "./AuthStack";
 import { StorageStack } from "./StorageStack";

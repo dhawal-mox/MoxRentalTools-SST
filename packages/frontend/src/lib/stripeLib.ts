@@ -12,5 +12,17 @@ export function createStripeCheckoutSession(user: UserType) {
         body: {
             user: user,
         }
-    })
+    });
+}
+
+export function getStripePublishableKey() {
+    return API.get("mox", `/stripe/publishableKey`, {});
+}
+
+export function createStripeVerificationSession(user: UserType) {
+    return API.post("mox", `/stripe/createVerificationSession`, {
+        body: {
+            user: user,
+        }
+    });
 }
