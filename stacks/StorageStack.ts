@@ -34,6 +34,17 @@ export function StorageStack({ stack }: StackContext) {
     },
     primaryIndex: { partitionKey: "userId" }
   })
+
+  const plaidUserRecords = new Table(stack, "PlaidUserRecords", {
+    fields: {
+      accessToken: "string",
+      userToken: "string",
+      // incomeConnected: "boolean",
+      plaidWebhookUserId: "string",
+      userId: "string",
+    },
+    primaryIndex: { partitionKey: "userId" }
+  })
   // Create an S3 bucket
   const bucket = new Bucket(stack, "Uploads");
 
@@ -41,6 +52,7 @@ export function StorageStack({ stack }: StackContext) {
     usersTable,
     userIdentityTable,
     stripeCheckoutSessions,
+    plaidUserRecords,
     bucket,
   };
 }
