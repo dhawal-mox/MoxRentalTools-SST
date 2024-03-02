@@ -10,6 +10,7 @@ import TenantFeatures from "./containers/Onboarding/tenant/TenantFeatures.tsx";
 import ConfirmPayroll from "./containers/Onboarding/tenant/ConfirmPayroll.tsx";
 import StripePurchase from "./containers/Onboarding/StripePurchase.tsx";
 import StripeIDVerification from "./containers/Onboarding/StripeIDVerification.tsx";
+import PlaidPayrollLink from "./containers/Onboarding/tenant/PlaidPayrollLink.tsx";
 
 export default function Links() {
   return (
@@ -54,6 +55,11 @@ export default function Links() {
       <Route path="/idVerify" element={
         <AuthenticatedRoute>
           <StripeIDVerification />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/plaidPayroll" element={
+        <AuthenticatedRoute>
+          <PlaidPayrollLink />
         </AuthenticatedRoute>
       } />
     </Routes>

@@ -32,6 +32,7 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
+      "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",
 
       "POST /stripe/createCheckoutSession": "packages/functions/src/stripe/createCheckoutSession.main",
       "GET /stripe/publishableKey": "packages/functions/src/stripe/getPublishableKey.main",

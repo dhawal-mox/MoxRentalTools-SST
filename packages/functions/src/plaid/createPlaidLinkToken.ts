@@ -1,10 +1,13 @@
 import handler from "@mox-rental-tools-vanilla/core/handler";
-import getPlaidClient from "./getplaidClient";
+import getPlaidClient from "./getPlaidClient";
 import { Config } from "sst/node/config";
 import { Table } from "sst/node/table";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
+import { use } from "sst/constructs";
+import { CountryCode, IncomeVerificationPayrollFlowType, IncomeVerificationSourceType, Products } from "plaid";
 
 const plaidClient = getPlaidClient(Config.PLAID_CLIENT_ID, Config.PLAID_CLIENT_SECRET);
+const webhookEndpoint = "https://8w7uah6pw7.execute-api.us-east-1.amazonaws.com";
 
 async function fetchOrCreateUserToken(user: any) {
 
@@ -44,22 +47,28 @@ async function fetchOrCreateUserToken(user: any) {
 export const main = handler(async (event) => {
     const user = JSON.parse(event.body || "{}").user;
     const userToken = await fetchOrCreateUserToken(user);
+
     console.log(`User token returned: ${userToken}`);
+
     const income_verification_object = { income_source_types: ["payroll"] };
-    const webhookUrl = "";
-    const basicLinkTokenObject = {
-        user: { client_user_id: "testUser" },
-        client_name: "Todd's Hoverboards",
-        language: "en",
-        products: [],
-        country_codes: ["US"],
-      };
-    const newIncomeTokenObject = {
-        ...basicLinkTokenObject,
-        products: ["income_verification"],
+    const webhookUrl = `${webhookEndpoint}/plaid/webhook`;
+
+    const linkTokenCreateRequest = {
+        user: {
+            client_user_id: user.userId,
+            email_address: user.email,
+        },
+        client_name: "MOX Rental Tools",
+        products: [Products.IncomeVerification],
         user_token: userToken,
+        income_verification: {
+            income_source_types: [IncomeVerificationSourceType.Payroll],
+            payroll_income: { flow_types: [IncomeVerificationPayrollFlowType.DigitalIncome] },
+        },
+        language: "en",
         webhook: webhookUrl,
-        income_verification: income_verification_object,
-      };
-    return JSON.stringify({});
+        country_codes: [CountryCode.Us],
+    };
+    const createTokenResponse = await plaidClient.linkTokenCreate(linkTokenCreateRequest);
+    return JSON.stringify(createTokenResponse.data);
 });
