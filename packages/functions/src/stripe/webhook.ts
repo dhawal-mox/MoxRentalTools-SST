@@ -9,7 +9,7 @@ export const main = handler(async (event) => {
     const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
         apiVersion: "2023-10-16",
     });
-    const endpointSecret = "whsec_YFDUFTqwHZHUuFJ5ZPPRwJk77ukc1Xj2";
+    const endpointSecret = "whsec_2EY2XCcdeyHonhn4MEElxBpkZhJnznaQ";
 
     const fullFillOrder = async (sessionWithLineItems: Stripe.Checkout.Session) => {
         const lineItems = sessionWithLineItems.line_items;

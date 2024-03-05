@@ -7,7 +7,8 @@ import { use } from "sst/constructs";
 import { CountryCode, IncomeVerificationPayrollFlowType, IncomeVerificationSourceType, Products } from "plaid";
 
 const plaidClient = getPlaidClient(Config.PLAID_CLIENT_ID, Config.PLAID_CLIENT_SECRET);
-const webhookEndpoint = "https://8w7uah6pw7.execute-api.us-east-1.amazonaws.com";
+// const webhookEndpoint = "https://8w7uah6pw7.execute-api.us-east-1.amazonaws.com";
+const webhookEndpoint = Config.MOX_WEBHOOK_URL;
 
 async function fetchOrCreateUserToken(user: any) {
 
@@ -51,7 +52,7 @@ export const main = handler(async (event) => {
     console.log(`User token returned: ${userToken}`);
 
     const income_verification_object = { income_source_types: ["payroll"] };
-    const webhookUrl = `${webhookEndpoint}/plaid/webhook`;
+    const webhookUrl = `${webhookEndpoint}/plaid`;
 
     const linkTokenCreateRequest = {
         user: {
