@@ -30,7 +30,7 @@ export const main = handler(async (event) => {
         client_reference_id: `${data.user.userId}`,
         metadata: {
             userRole: `${data.user.userRole}`,
-        }
+        },
     });
 
     return JSON.stringify({ sessionUrl: session.url });

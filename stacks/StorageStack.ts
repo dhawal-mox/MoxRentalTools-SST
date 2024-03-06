@@ -35,6 +35,7 @@ export function StorageStack({ stack }: StackContext) {
     primaryIndex: { partitionKey: "userId" }
   })
 
+  // Plaid user access tokens - when creating link token
   const plaidUserRecords = new Table(stack, "PlaidUserRecords", {
     fields: {
       accessToken: "string",
@@ -45,6 +46,16 @@ export function StorageStack({ stack }: StackContext) {
     },
     primaryIndex: { partitionKey: "userId" }
   })
+
+  // Plaid: ItemId returned when Plaid Payroll is successfully linked for a user. Obtained from webhook.
+  const plaidPayrollItemIds = new Table(stack, "PlaidPayrollItemIds", {
+    fields: {
+      webhookUserId: "string",
+      itemId: "string",
+    },
+    primaryIndex: { partitionKey: "webhookUserId" }
+  })
+
   // Create an S3 bucket
   const bucket = new Bucket(stack, "Uploads");
 
@@ -53,6 +64,7 @@ export function StorageStack({ stack }: StackContext) {
     userIdentityTable,
     stripeCheckoutSessions,
     plaidUserRecords,
+    plaidPayrollItemIds,
     bucket,
   };
 }

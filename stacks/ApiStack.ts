@@ -2,7 +2,7 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, stripeCheckoutSessions, plaidUserRecords } = use(StorageStack);
+  const { usersTable, userIdentityTable, stripeCheckoutSessions, plaidUserRecords, plaidPayrollItemIds } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
@@ -16,6 +16,7 @@ export function ApiStack({ stack }: StackContext) {
               userIdentityTable,
               stripeCheckoutSessions,
               plaidUserRecords,
+              plaidPayrollItemIds,
               STRIPE_PUBLISHABLE_KEY,
               STRIPE_SECRET_KEY,
               PLAID_CLIENT_ID,
