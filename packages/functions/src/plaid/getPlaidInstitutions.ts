@@ -1,6 +1,6 @@
 import handler from "@mox-rental-tools-vanilla/core/handler";
-import { Configuration, CountryCode, InstitutionsSearchRequest, PlaidApi, PlaidEnvironments, Products } from 'plaid';
-import getPlaidClient from "./getplaidClient";
+import { CountryCode, InstitutionsSearchRequest, PlaidApi, PlaidEnvironments, Products } from 'plaid';
+import getPlaidClient from "./getPlaidClient";
 import { Config } from "sst/node/config";
 
 export const main = handler(async (event) => {

@@ -1,9 +1,9 @@
-import { Api, Config, StackContext, use } from "sst/constructs";
+import { Api, Config, StackContext, use, Function } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 import { ApiStack } from "./ApiStack";
 
 export function WebhookStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, stripeCheckoutSessions, plaidUserRecords } = use(StorageStack);
+  const { usersTable, userIdentityTable, stripeCheckoutSessions, plaidUserRecords, plaidPayrollItemIds } = use(StorageStack);
   const {STRIPE_SECRET_KEY} = use(ApiStack);
   const {STRIPE_PUBLISHABLE_KEY} = use(ApiStack); 
   const { PLAID_CLIENT_ID, PLAID_CLIENT_SECRET } = use(ApiStack);
@@ -16,6 +16,7 @@ export function WebhookStack({ stack }: StackContext) {
               userIdentityTable,
               stripeCheckoutSessions,
               plaidUserRecords,
+              plaidPayrollItemIds,
               STRIPE_PUBLISHABLE_KEY,
               STRIPE_SECRET_KEY,
               PLAID_CLIENT_ID,
@@ -23,6 +24,16 @@ export function WebhookStack({ stack }: StackContext) {
               ],
       },
     },
+    // authorizers: {
+    //   PlaidAuthorizer: {
+    //     type: "lambda",
+    //     identitySource: ["$request.header.plaid-verification"],
+
+    //     function: new Function(stack, "PlaidAuthorizer", {
+    //       handler: "packages/functions/src/plaid/webhookAuthorizer.handler",
+    //     })
+    //   }
+    // },
     routes: {
       "POST /stripe/webhook": "packages/functions/src/stripe/webhook.main",
       "POST /plaid/webhook": "packages/functions/src/plaid/webhook.main",
