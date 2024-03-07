@@ -66,13 +66,60 @@ export function StorageStack({ stack }: StackContext) {
     primaryIndex: { partitionKey: "userId" },
   });
 
+  // Plaid: item details. Data from the "item" part of the response from /plaid/auth/get call.
+  // https://plaid.com/docs/api/products/auth/#authget
+  const plaidAuthItemDetails = new Table(stack, "PlaidAuthItemDetails", {
+    fields: {
+      itemId: "string",
+      availableProducts: "string", // [string] value
+      billedProducts: "string", // [string] value
+      products: "string", // [string] value
+      institutionId: "string",
+      institutionName: "string", // fetched from /plaid/institutions/get_by_id
+      webhookUrl: "string",
+      error: "string",
+      consentExpirationTime: "string",
+      requestId: "string",
+    },
+    primaryIndex: { partitionKey: "itemId" },
+  });
+
+  // Plaid: account details. Data from the "accounts" part of the response from /plaid/auth/get call.
+  // https://plaid.com/docs/api/products/auth/#authget
+  const plaidAuthAccounts = new Table(stack, "PlaidAuthAccounts", {
+    fields: {
+      itemId: "string",
+      accountId: "string",
+      availableBalance: "string",
+      currentBalance: "string",
+      isoCurrencyCode: "string",
+      mask: "string",
+      officialName: "string",
+      name: "string",
+      type: "string", // https://plaid.com/docs/api/accounts/#account-type-schema
+      subtype: "string",
+      varificationStatus: "string",
+    },
+    primaryIndex: { partitionKey: "accountId" },
+  });
+
+  // Plaid: accountIds for a user. Data from the "accounts" part of the response from /plaid/auth/get call.
+  // https://plaid.com/docs/api/products/auth/#authget
+  const plaidAuthAccountIds = new Table(stack, "PlaidAuthAccountIds", {
+    fields: {
+      userId: "string",
+      accountIds: "string",
+    },
+    primaryIndex: { partitionKey: "userId" },
+  });
+
   // Create an S3 bucket
   const bucket = new Bucket(stack, "Uploads");
 
   return {
     usersTable, userIdentityTable,
     stripeCheckoutSessions,
-    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
+    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
     bucket,
   };
 }
