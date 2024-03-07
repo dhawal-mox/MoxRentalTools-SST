@@ -11,6 +11,7 @@ import ConfirmPayroll from "./containers/Onboarding/tenant/ConfirmPayroll.tsx";
 import StripePurchase from "./containers/Onboarding/StripePurchase.tsx";
 import StripeIDVerification from "./containers/Onboarding/StripeIDVerification.tsx";
 import PlaidPayrollLink from "./containers/Onboarding/tenant/PlaidPayrollLink.tsx";
+import PlaidAuthLink from "./containers/Onboarding/tenant/PlaidAuthLink.tsx";
 
 export default function Links() {
   return (
@@ -60,6 +61,11 @@ export default function Links() {
       <Route path="/plaidPayroll" element={
         <AuthenticatedRoute>
           <PlaidPayrollLink />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/plaidAuth" element={
+        <AuthenticatedRoute>
+          <PlaidAuthLink />
         </AuthenticatedRoute>
       } />
     </Routes>

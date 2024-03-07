@@ -2,7 +2,9 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, stripeCheckoutSessions, plaidUserRecords, plaidPayrollItemIds } = use(StorageStack);
+  const { usersTable,
+    userIdentityTable, stripeCheckoutSessions, 
+    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
@@ -12,15 +14,11 @@ export function ApiStack({ stack }: StackContext) {
   const api = new Api(stack, "Api", {
     defaults: {
       function: {
-        bind: [usersTable,
-              userIdentityTable,
+        bind: [usersTable, userIdentityTable,
               stripeCheckoutSessions,
-              plaidUserRecords,
-              plaidPayrollItemIds,
-              STRIPE_PUBLISHABLE_KEY,
-              STRIPE_SECRET_KEY,
-              PLAID_CLIENT_ID,
-              PLAID_CLIENT_SECRET,
+              plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
+              STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
+              PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
               ],
       },
       authorizer: "iam",
@@ -34,6 +32,7 @@ export function ApiStack({ stack }: StackContext) {
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",
+      "POST /plaid/setAuthAccessToken": "packages/functions/src/plaid/setAuthAccessToken.main",
 
       "POST /stripe/createCheckoutSession": "packages/functions/src/stripe/createCheckoutSession.main",
       "GET /stripe/publishableKey": "packages/functions/src/stripe/getPublishableKey.main",
