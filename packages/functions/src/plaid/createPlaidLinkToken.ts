@@ -5,6 +5,7 @@ import { Table } from "sst/node/table";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
 import { use } from "sst/constructs";
 import { CountryCode, IncomeVerificationPayrollFlowType, IncomeVerificationSourceType, Products, LinkTokenCreateRequest } from "plaid";
+import verifyRequestUser from "src/verifyRequestUser";
 
 const plaidClient = getPlaidClient(Config.PLAID_CLIENT_ID, Config.PLAID_CLIENT_SECRET);
 const webhookEndpoint = "https://8w7uah6pw7.execute-api.us-east-1.amazonaws.com";
@@ -46,6 +47,7 @@ async function fetchOrCreateUserToken(user: any) {
 }
 
 export const main = handler(async (event) => {
+    verifyRequestUser(event);
     const data = JSON.parse(event.body || "{}");
     const user = data.user;
     const productType = data.productType;

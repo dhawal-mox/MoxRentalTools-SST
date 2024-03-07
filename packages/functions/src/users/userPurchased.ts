@@ -1,10 +1,13 @@
 import dynamodb from "@mox-rental-tools-vanilla/core/dynamodb";
 import handler from "@mox-rental-tools-vanilla/core/handler";
+import verifyRequestUser from "src/verifyRequestUser";
 import { Table } from "sst/node/table";
 
-
+// returns the expiration date of a user's purchase.
+// 30 days for tenants. 1 year for landlords/agents.
 export const main = handler(async (event) => {
-    const userId = JSON.parse(event.body != null ? event.body : "").userId;
+    verifyRequestUser(event);
+    const userId = JSON.parse(event.body != null ? event.body : "").user.userId;
     const params = {
         TableName: Table.StripePurchases.tableName,
         Key: {

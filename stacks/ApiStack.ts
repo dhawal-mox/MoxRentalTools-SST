@@ -27,7 +27,7 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users": "packages/functions/src/users/createUser.main",
       "GET /users/{id}": "packages/functions/src/users/getUser.main",
       "GET /users/user": "packages/functions/src/users/getCurrentUser.main",
-      "POST /users/{id}/role": "packages/functions/src/users/updateUserRole.main",
+      "POST /users/role": "packages/functions/src/users/updateUserRole.main",
       "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",

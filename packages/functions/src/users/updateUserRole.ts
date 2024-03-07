@@ -1,17 +1,18 @@
 import { Table } from "sst/node/table";
 import handler from "@mox-rental-tools-vanilla/core/handler";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
+import verifyRequestUser from "src/verifyRequestUser";
 
 export const main = handler(async (event) => {
-
+  verifyRequestUser(event);
   const data = JSON.parse(event.body || "{}");
-  console.log(event.body);
-  console.log(`Updateing user role: userId ${event.pathParameters?.id} and role ${data.userRole}`);
+  const user = data.user;
+  console.log(`Updateing user role: userId ${user.userId} and role ${data.userRole}`);
 
   const params = {
     TableName: Table.Users.tableName,
     Key: {
-        userId: event.pathParameters?.id,
+        userId: user.userId,
     },
     UpdateExpression: "SET userRole = :userRole",
     ExpressionAttributeValues: {

@@ -12,9 +12,10 @@ export function getCurrentUser() {
 }
 
 export function updateUserRole(user: UserType, role: UserRole) {
-    return API.post("mox", `/users/${user.userId}/role`, {
+    return API.post("mox", `/users/role`, {
         body: {
             userRole: role,
+            user: user,
         },
     });
 }
@@ -22,7 +23,7 @@ export function updateUserRole(user: UserType, role: UserRole) {
 export async function getUserPurchased(user: UserType) {
     const result = await API.post("mox", `/users/purchased`, {
         body: {
-            userId: user.userId,
+            user: user,
         },
     })
     if(result.expiration) {

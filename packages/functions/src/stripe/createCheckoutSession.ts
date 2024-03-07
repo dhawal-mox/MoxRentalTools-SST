@@ -1,8 +1,11 @@
 import Stripe from "stripe";
 import { Config } from "sst/node/config";
 import handler from "@mox-rental-tools-vanilla/core/handler";
+import verifyRequestUser from "src/verifyRequestUser";
 
 export const main = handler(async (event) => {
+
+    verifyRequestUser(event);
 
     let priceIds: Record<string, string> = {
         'tenant': 'price_1OodrYDQM8goeywJCr0hxO8y',

@@ -3,8 +3,11 @@ import getPlaidClient from "./getPlaidClient";
 import { Config } from "sst/node/config";
 import { Table } from "sst/node/table";
 import dynamodb from "@mox-rental-tools-vanilla/core/dynamodb";
+import verifyRequestUser from "src/verifyRequestUser";
 
 export const main = handler(async (event) => {
+    verifyRequestUser(event);
+
     const data = JSON.parse(event.body || "{}");
     const user = data.user;
     const publicToken = data.publicToken;
