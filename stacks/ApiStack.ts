@@ -4,7 +4,8 @@ import { StorageStack } from "./StorageStack";
 export function ApiStack({ stack }: StackContext) {
   const { usersTable,
     userIdentityTable, stripeCheckoutSessions, 
-    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds } = use(StorageStack);
+    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
+    plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
@@ -17,6 +18,7 @@ export function ApiStack({ stack }: StackContext) {
         bind: [usersTable, userIdentityTable,
               stripeCheckoutSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
+              plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
               STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
               PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
               ],
@@ -29,6 +31,7 @@ export function ApiStack({ stack }: StackContext) {
       "GET /users/user": "packages/functions/src/users/getCurrentUser.main",
       "POST /users/role": "packages/functions/src/users/updateUserRole.main",
       "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
+      "POST /users/tenantProfile": "packages/functions/src/users/getAccounts.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",

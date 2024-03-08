@@ -35,3 +35,11 @@ export async function getUserPurchased(user: UserType) {
     }
     return user;
 }
+
+export async function getTenantProfile(user: UserType) {
+    return API.post("mox", `/users/tenantProfile`, {
+        body: {
+            user: user,
+        },
+    });
+}
