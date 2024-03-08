@@ -31,6 +31,7 @@ export function ApiStack({ stack }: StackContext) {
       "GET /users/user": "packages/functions/src/users/getCurrentUser.main",
       "POST /users/role": "packages/functions/src/users/updateUserRole.main",
       "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
+      "POST /users/tenantProfile": "packages/functions/src/users/getAccounts.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",

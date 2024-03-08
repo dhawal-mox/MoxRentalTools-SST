@@ -3,9 +3,13 @@ import { Table } from "sst/node/table";
 import getPlaidClient from "./getPlaidClient";
 import { Config } from "sst/node/config";
 import { CountryCode } from "plaid";
+import { APIGatewayProxyEvent } from "aws-lambda";
 
-export async function getPlaidAuthAccounts(user: any) {
+export async function getPlaidAuthAccounts(event: APIGatewayProxyEvent) {
+    const data = JSON.parse(event.body || "{}");
+    const user = data.user;
     const userId = user.userId;
+
     // get accountIds from DB if available
     const getPlaidAuthAccountIdsParams = {
         TableName: Table.PlaidAuthAccountIds.tableName,
@@ -15,7 +19,7 @@ export async function getPlaidAuthAccounts(user: any) {
     };
 
     const getPlaidAuthAccountIdsResult = await dynamodb.get(getPlaidAuthAccountIdsParams);
-
+    
     if(!getPlaidAuthAccountIdsResult.Item) {
         console.info(`No accountIds found for userId ${userId}. Fetching from Plaid now.`);
         const { accounts, authItemDetails } = await fetchPlaidAuthAccounts(user);
@@ -119,7 +123,8 @@ async function fetchPlaidAuthAccounts(user: any) {
                 name: account.name,
                 type: account.type, 
                 subtype: account.subtype,
-                varificationStatus: account.verification_status,
+                verificationStatus: account.verification_status,
+                lastUpdatedAt: Date.now(),
             },
         };
         accounts.push(putPlaidAccountsParams.Item);

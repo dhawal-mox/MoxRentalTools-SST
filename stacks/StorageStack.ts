@@ -98,7 +98,8 @@ export function StorageStack({ stack }: StackContext) {
       name: "string",
       type: "string", // https://plaid.com/docs/api/accounts/#account-type-schema
       subtype: "string",
-      varificationStatus: "string",
+      verificationStatus: "string",
+      lastUpdatedAt: "string",
     },
     primaryIndex: { partitionKey: "accountId" },
   });
