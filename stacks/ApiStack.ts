@@ -4,8 +4,9 @@ import { StorageStack } from "./StorageStack";
 export function ApiStack({ stack }: StackContext) {
   const { usersTable,
     userIdentityTable, stripeCheckoutSessions, 
-    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
-    plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds } = use(StorageStack);
+    plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
+    plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
+    plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
@@ -17,8 +18,9 @@ export function ApiStack({ stack }: StackContext) {
       function: {
         bind: [usersTable, userIdentityTable,
               stripeCheckoutSessions,
-              plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds,
-              plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
+              plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
+              plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
+              plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
               STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
               PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
               ],

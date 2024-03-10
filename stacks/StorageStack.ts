@@ -40,7 +40,7 @@ export function StorageStack({ stack }: StackContext) {
     fields: {
       accessToken: "string",
       userToken: "string",
-      // incomeConnected: "boolean",
+      incomeConnected: "string",
       plaidWebhookUserId: "string",
       userId: "string",
     },
@@ -54,6 +54,49 @@ export function StorageStack({ stack }: StackContext) {
       itemId: "string",
     },
     primaryIndex: { partitionKey: "webhookUserId" },
+  });
+
+  // Plaid: payroll item details returned from /plaid/credit/payroll_income/get.
+  const plaidPayrollItemDetails = new Table(stack, "PlaidPayrollItemDetails", {
+    fields: {
+      userId: "string",
+      itemId: "string",
+      institutionId: "string",
+      institutionName: "string",
+      updatedAt: "string",
+    },
+    primaryIndex: { partitionKey: "userId" },
+  });
+
+  // Plaid: payroll account details from /plaid/credit/payroll_income/get
+  const plaidPayrollAccounts = new Table(stack, "PlaidPayrollAccounts", {
+    fields: {
+      payrollItemId: "string",
+      accountId: "string",
+      payAmmount: "string",
+      payRate: "string",
+      payFrequency: "string",
+      employerNamesW2: "string",
+    },
+    primaryIndex: { partitionKey: "payrollItemId" , sortKey: "accountId" },
+  });
+
+  const plaidPayrollW2sForAccounts = new Table(stack, "PlaidPayrollW2sForAccounts", {
+    fields: {
+      accountId: "string",
+      documentId: "string",
+      documentUrl: "string",
+    },
+    primaryIndex: { partitionKey: "accountId", sortKey: "documentId" },
+  });
+
+  const plaidPayStubsForAccounts = new Table(stack, "PlaidPayStubsForAccounts", {
+    fields: {
+      accountId: "string",
+      documentId: "string",
+      documentUrl: "string",
+    },
+    primaryIndex: { partitionKey: "accountId", sortKey: "documentId" },
   });
 
   // Plaid: itemId and accessToken returned Plaid Auth is successfully linked for a user. Obtained from setAccessToken (public token swap)
@@ -120,7 +163,9 @@ export function StorageStack({ stack }: StackContext) {
   return {
     usersTable, userIdentityTable,
     stripeCheckoutSessions,
-    plaidUserRecords, plaidPayrollItemIds, plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
+    plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
+    plaidPayrollW2sForAccounts, plaidPayStubsForAccounts,
+    plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
     bucket,
   };
 }
