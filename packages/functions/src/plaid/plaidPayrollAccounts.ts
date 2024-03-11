@@ -1,8 +1,13 @@
 import dynamodb from "@mox-rental-tools-vanilla/core/dynamodb";
+import s3client from "@mox-rental-tools-vanilla/core/s3client";
 import { Config } from "sst/node/config";
 import { Table } from "sst/node/table";
+import { Bucket } from "sst/node/bucket";
 import getPlaidClient from "./getPlaidClient";
 import { PlaidApi } from "plaid";
+import fetch from "node-fetch";
+import { Readable } from "stream";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export async function getPlaidPayrollAccounts(userId: string) {
     // making use of /plaid/credit/payroll_income/get
@@ -126,6 +131,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     let employerNamesW2: any[] = [];
     let payrollAccounts: any[] = [];
     let payStubsForAccounts: any[] = [];
+    let imagesToFetch: Map<string,string> = new Map();
  
     for(const payroll of plaidPayrollItem.payroll_income) {
 
@@ -147,6 +153,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                 };
                 await dynamodb.put(putPlaidPayrollW2sForAccountParams);
                 taxW2ForAccounts.push(putPlaidPayrollW2sForAccountParams.Item);
+                imagesToFetch.set(w2Data.document_id, w2Data.document_metadata.download_url!);
             }
         }
     }
@@ -182,7 +189,39 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
             };
             await dynamodb.put(putPlaidPayStubsForAccountsParams);
             payStubsForAccounts.push(putPlaidPayStubsForAccountsParams.Item);
+            imagesToFetch.set(payStub.document_id!, payStub.document_metadata.download_url!);
         }
+    }
+
+    // Function to convert a Buffer into a ReadableStream
+    function bufferToStream(buffer: Buffer): Readable {
+        const stream = new Readable();
+        stream.push(buffer);
+        stream.push(null); // Signifies the end of the stream
+        return stream;
+    }
+
+    // download all images and upload to s3 bucket
+    for(let [document_id, document_url] of imagesToFetch) {
+
+        if(!document_url) {
+            continue;
+        }
+        logJSON("document_url=", document_url);
+        const downloadResponse = await fetch(document_url);
+        if(!downloadResponse.ok) {
+            throw `Failed to fetch image ${downloadResponse.statusText}`;
+        }
+        const buffer = Buffer.from(await downloadResponse.arrayBuffer());
+
+        const uploadToBucketCommand = new PutObjectCommand({
+            Bucket: Bucket.Uploads.bucketName,
+            Key: document_id,
+            // Body: bufferToStream(buffer),
+            Body: buffer,
+            ContentType: "application/pdf",
+        });
+        await s3client.put(uploadToBucketCommand);
     }
 
     // update user records to show income connected

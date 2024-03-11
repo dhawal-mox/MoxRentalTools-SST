@@ -6,7 +6,8 @@ export function ApiStack({ stack }: StackContext) {
     userIdentityTable, stripeCheckoutSessions, 
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
-    plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds } = use(StorageStack);
+    plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
+    bucket } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
@@ -23,6 +24,7 @@ export function ApiStack({ stack }: StackContext) {
               plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
               STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
               PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
+              bucket,
               ],
       },
       authorizer: "iam",
