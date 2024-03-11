@@ -3,13 +3,8 @@ import { Table } from "sst/node/table";
 import getPlaidClient from "./getPlaidClient";
 import { Config } from "sst/node/config";
 import { CountryCode } from "plaid";
-import { APIGatewayProxyEvent } from "aws-lambda";
 
-export async function getPlaidAuthAccounts(event: APIGatewayProxyEvent) {
-    const data = JSON.parse(event.body || "{}");
-    const user = data.user;
-    const userId = user.userId;
-
+export async function getPlaidAuthAccounts(userId: string) {
     // get accountIds from DB if available
     const getPlaidAuthAccountIdsParams = {
         TableName: Table.PlaidAuthAccountIds.tableName,
@@ -22,19 +17,19 @@ export async function getPlaidAuthAccounts(event: APIGatewayProxyEvent) {
     
     if(!getPlaidAuthAccountIdsResult.Item) {
         console.info(`No accountIds found for userId ${userId}. Fetching from Plaid now.`);
-        const { accounts, authItemDetails } = await fetchPlaidAuthAccounts(user);
+        const { accounts, authItemDetails } = await fetchPlaidAuthAccounts(userId);
         const institutionName = authItemDetails.institutionName;
         const institutionId = authItemDetails.institutionId;
         return { accounts, institutionName, institutionId };
     } else {
         console.info(`Found accountIds for userId ${userId}.`);
         const accountIds = getPlaidAuthAccountIdsResult.Item.accountIds;
-        const {accounts, institutionName, institutionId} = await getPlaidAuthAccountsFromDB(user, accountIds);
+        const {accounts, institutionName, institutionId} = await getPlaidAuthAccountsFromDB(accountIds);
         return { accounts, institutionName, institutionId };
     }
 }
 
-async function getPlaidAuthAccountsFromDB(user: any, accountIds: [string]) {
+async function getPlaidAuthAccountsFromDB(accountIds: [string]) {
     let accounts: any[] = [];
     for(const accountId of accountIds) {
         const getPlaidAuthAccountParams = {
@@ -69,8 +64,7 @@ async function getPlaidAuthAccountsFromDB(user: any, accountIds: [string]) {
     return {accounts, institutionName, institutionId};
 }
 
-async function fetchPlaidAuthAccounts(user: any) {
-    const userId = user.userId;
+async function fetchPlaidAuthAccounts(userId: string) {
     let accounts: any[] = [];
     // get the access token from link session
     const getPlaidAuthAccessTokenParams = {
@@ -135,6 +129,8 @@ async function fetchPlaidAuthAccounts(user: any) {
     const plaidItemDetails = plaidAuthGetResponse.data.item;
     const plaidRequestId = plaidAuthGetResponse.data.request_id;
     const institutionId = plaidItemDetails.institution_id!;
+
+    // we also require the institution name
     const getPlaidInstitutionsResponse = await plaidClient.institutionsGetById({
         institution_id: institutionId,
         country_codes: [CountryCode.Us],
