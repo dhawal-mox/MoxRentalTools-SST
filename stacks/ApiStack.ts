@@ -3,13 +3,15 @@ import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
   const { usersTable,
-    userIdentityTable, stripeCheckoutSessions, 
+    userIdentityTable, stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
     plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
     bucket } = use(StorageStack);
   const STRIPE_SECRET_KEY = new Config.Secret(stack, "STRIPE_SECRET_KEY");
   const STRIPE_PUBLISHABLE_KEY = new Config.Secret(stack, "STRIPE_PUBLISHABLE_KEY"); 
+  const STRIPE_WEBHOOK_SECRET = new Config.Secret(stack, "STRIPE_WEBHOOK_SECRET");
+  const STRIPE_RESTRICTED_KEY = new Config.Secret(stack, "STRIPE_RESTRICTED_KEY");
   const PLAID_CLIENT_ID = new Config.Secret(stack, "PLAID_CLIENT_ID");
   const PLAID_CLIENT_SECRET = new Config.Secret(stack, "PLAID_CLIENT_SECRET");
 
@@ -18,11 +20,11 @@ export function ApiStack({ stack }: StackContext) {
     defaults: {
       function: {
         bind: [usersTable, userIdentityTable,
-              stripeCheckoutSessions,
+              stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
               plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
               plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
-              STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
+              STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_RESTRICTED_KEY,
               PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
               bucket,
               ],
@@ -57,6 +59,8 @@ export function ApiStack({ stack }: StackContext) {
     api,
     STRIPE_PUBLISHABLE_KEY,
     STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET,
+    STRIPE_RESTRICTED_KEY,
     PLAID_CLIENT_ID,
     PLAID_CLIENT_SECRET,
   };

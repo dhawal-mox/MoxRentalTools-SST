@@ -6,58 +6,91 @@ import { Table } from "sst/node/table";
 
 export const main = handler(async (event) => {
 
-    const stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
+    let stripe = new Stripe(Config.STRIPE_SECRET_KEY, {
         apiVersion: "2023-10-16",
     });
-    const endpointSecret = "whsec_YFDUFTqwHZHUuFJ5ZPPRwJk77ukc1Xj2";
+    // const endpointSecret = "whsec_72NhqHjJC8ogygbPDJMvGGcpN07SqRan";
+    const endpointSecret = Config.STRIPE_WEBHOOK_SECRET;
 
-    const fullFillOrder = async (sessionWithLineItems: Stripe.Checkout.Session) => {
-        const lineItems = sessionWithLineItems.line_items;
-        const priceId = lineItems?.data[0].price?.id;
-        const userId = sessionWithLineItems.client_reference_id;
-        const customerEmail = sessionWithLineItems.customer_email;
-        const userRole = sessionWithLineItems.metadata!.userRole;
-        // console.log(`successful stripe payment for userId - ${userId} and email - ${customerEmail} and priceId - ${priceId}`);
-        const timestamp = Date.now();
-        const params = {
-            TableName: Table.StripePurchases.tableName,
-            Item: {
-                // The attributes of the item to be created
-                userId: userId,
-                customerEmail: customerEmail,
-                timestamp: timestamp, // Current Unix timestamp
-                priceId: priceId,
-                userRole: userRole,
-                sessionId: sessionWithLineItems.id,
-                expiration: timestamp + 86400000 * 30,
-            },
-        };
-        
-        await dynamoDb.put(params);
-    }
-
-    try {
-        const data = JSON.parse(event.body || "{}");
-        const sig = event.headers?.["stripe-signature"] || "";
-        const stripeEvent = stripe.webhooks.constructEvent(event.body || "{}", sig, endpointSecret);
-        
-        // Handle the checkout.session.completed event
-        if (stripeEvent.type === 'checkout.session.completed') {
-            // Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
-            const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
-                stripeEvent.data.object.id,
-            {
-                expand: ['line_items'],
-            }
-            );
-            // Fulfill the purchase...
-            await fullFillOrder(sessionWithLineItems);
-  }
-
-    } catch (err) {
-        throw err
-    }
+    const data = JSON.parse(event.body || "{}");
+    const sig = event.headers?.["stripe-signature"] || "";
+    let stripeEvent = stripe.webhooks.constructEvent(event.body || "{}", sig, endpointSecret);
     
+    // Handle the checkout.session.completed event
+    if (stripeEvent.type === 'checkout.session.completed') {
+        // Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
+        const sessionWithLineItems = await stripe.checkout.sessions.retrieve(
+            stripeEvent.data.object.id,
+        {
+            expand: ['line_items'],
+        }
+        );
+        // Fulfill the purchase...
+        await fullFillOrder(sessionWithLineItems);
+    } else if(stripeEvent.type === "identity.verification_session.verified") {
+        // we will have to use the restricted key
+        stripe = new Stripe(Config.STRIPE_RESTRICTED_KEY, {
+            apiVersion: "2023-10-16",
+        });
+        stripeEvent = stripe.webhooks.constructEvent(event.body || "{}", sig, endpointSecret);
+        if(stripeEvent.type != "identity.verification_session.verified") {
+            throw "mismatch event type!";
+        }
+        const verificationSession = await stripe.identity.verificationSessions.retrieve(
+            stripeEvent.data.object.id,
+            {
+                expand: [
+                    'verified_outputs',
+                    'last_verification_report.document.expiration_date',
+                    'last_verification_report.document.number',
+                    'last_verification_report.id_number.id_number',
+                ],
+            },
+        );
+        // console.log(JSON.stringify(verificationSession));
+        storeStripeIdentityVerificationResult(verificationSession);
+    } else {
+        console.log(stripeEvent.type);
+        // console.log(stripeEvent.)
+    }
 
     return JSON.stringify({  });
 });
+
+const fullFillOrder = async (sessionWithLineItems: Stripe.Checkout.Session) => {
+    const lineItems = sessionWithLineItems.line_items;
+    const priceId = lineItems?.data[0].price?.id;
+    const userId = sessionWithLineItems.client_reference_id;
+    const customerEmail = sessionWithLineItems.customer_email;
+    const userRole = sessionWithLineItems.metadata!.userRole;
+    // console.log(`successful stripe payment for userId - ${userId} and email - ${customerEmail} and priceId - ${priceId}`);
+    const timestamp = Date.now();
+    const params = {
+        TableName: Table.StripePurchases.tableName,
+        Item: {
+            // The attributes of the item to be created
+            userId: userId,
+            customerEmail: customerEmail,
+            timestamp: timestamp, // Current Unix timestamp
+            priceId: priceId,
+            userRole: userRole,
+            sessionId: sessionWithLineItems.id,
+            expiration: timestamp + 86400000 * 30,
+        },
+    };
+    
+    await dynamoDb.put(params);
+}
+
+const storeStripeIdentityVerificationResult = async(verificationSession: Stripe.Identity.VerificationSession) => {
+    const verificationReport = verificationSession.last_verification_report as Stripe.Identity.VerificationReport;
+    const putStripeIdentityVerificationSessionParams = {
+        TableName: Table.StripeIdentityVerificationSessions.tableName,
+        Item: {
+            userId: verificationReport.client_reference_id,
+            sessionId: verificationSession.id,
+            results: verificationReport,
+        },
+    };
+    await dynamoDb.put(putStripeIdentityVerificationSessionParams);
+}
