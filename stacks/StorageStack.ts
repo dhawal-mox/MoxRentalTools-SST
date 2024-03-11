@@ -35,6 +35,15 @@ export function StorageStack({ stack }: StackContext) {
     primaryIndex: { partitionKey: "userId" },
   });
 
+  const stripeIdentityVerificationSessions = new Table(stack, "StripeIdentityVerificationSessions", {
+    fields: {
+      userId: "string",
+      sessionId: "string",
+      results: "string",
+    },
+    primaryIndex: { partitionKey: "userId" },
+  });
+
   // Plaid user access tokens - when creating link token
   const plaidUserRecords = new Table(stack, "PlaidUserRecords", {
     fields: {
@@ -162,7 +171,7 @@ export function StorageStack({ stack }: StackContext) {
 
   return {
     usersTable, userIdentityTable,
-    stripeCheckoutSessions,
+    stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayrollW2sForAccounts, plaidPayStubsForAccounts,
     plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,

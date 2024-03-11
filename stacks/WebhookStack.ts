@@ -3,11 +3,14 @@ import { StorageStack } from "./StorageStack";
 import { ApiStack } from "./ApiStack";
 
 export function WebhookStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, stripeCheckoutSessions, 
+  const { usersTable, userIdentityTable, 
+    stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, 
     plaidPayrollAccounts, plaidPayStubsForAccounts, plaidPayrollW2sForAccounts } = use(StorageStack);
   const {STRIPE_SECRET_KEY} = use(ApiStack);
   const {STRIPE_PUBLISHABLE_KEY} = use(ApiStack); 
+  const {STRIPE_WEBHOOK_SECRET} = use(ApiStack);
+  const {STRIPE_RESTRICTED_KEY} = use(ApiStack);
   const { PLAID_CLIENT_ID, PLAID_CLIENT_SECRET } = use(ApiStack);
 
   // Create the API
@@ -15,10 +18,10 @@ export function WebhookStack({ stack }: StackContext) {
     defaults: {
       function: {
         bind: [usersTable, userIdentityTable,
-              stripeCheckoutSessions,
+              stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails,
               plaidPayrollAccounts, 
-              STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY,
+              STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_RESTRICTED_KEY,
               PLAID_CLIENT_ID, PLAID_CLIENT_SECRET,
               ],
       },
