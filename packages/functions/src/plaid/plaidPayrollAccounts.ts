@@ -25,7 +25,7 @@ export async function getPlaidPayrollAccounts(userId: string) {
     }
     const plaidUserRecord = getPlaidUserRecordsResult.Item;
     // logJSON("found user record", plaidUserRecord);
-    if(!plaidUserRecord.incomeConnected) {
+    if(plaidUserRecord.incomeConnected) {
         // getPlaidPayrollAccountsFromDB
         const result = getPlaidPayrollAccountsFromDB(userId, plaidClient);
         return result;
@@ -204,9 +204,10 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     // download all images and upload to s3 bucket
     for(let [document_id, document_url] of imagesToFetch) {
 
-        if(document_url == "") {
+        if(!document_url) {
             continue;
         }
+        logJSON("document_url=", document_url);
         const downloadResponse = await fetch(document_url);
         if(!downloadResponse.ok) {
             throw `Failed to fetch image ${downloadResponse.statusText}`;
@@ -216,8 +217,9 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         const uploadToBucketCommand = new PutObjectCommand({
             Bucket: Bucket.Uploads.bucketName,
             Key: document_id,
-            Body: bufferToStream(buffer),
-            ContentType: "pdf",
+            // Body: bufferToStream(buffer),
+            Body: buffer,
+            ContentType: "application/pdf",
         });
         await s3client.put(uploadToBucketCommand);
     }
