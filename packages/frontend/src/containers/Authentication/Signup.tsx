@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useFormFields } from "../../lib/hooksLib";
 import { useAppContext } from "../../lib/contextLib";
 import LoaderButton from "../../components/LoaderButton";
@@ -9,7 +9,8 @@ import "./Signup.css";
 import { Auth } from "aws-amplify";
 import { onError } from "../../lib/errorLib";
 import { ISignUpResult } from "amazon-cognito-identity-js";
-import createUser from "../../lib/userLib";
+import createUser, { getUserOnboardingStatus } from "../../lib/userLib";
+import { onboarding } from "../../lib/onboardingLib";
 
 export default function Signup() {
   const [fields, handleFieldChange] = useFormFields({
@@ -25,6 +26,8 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [newUser, setNewUser] = useState<null | ISignUpResult>(null);
   const { setUser } = useAppContext();
+  const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
+  const { pathname } = useLocation();
 
   function validateForm() {
     return (
@@ -70,8 +73,11 @@ export default function Signup() {
         email: fields.email,
       });
       setUser(user);
+      const onboardingStatus = await getUserOnboardingStatus(user);
+      setUserOnboardingStatus(onboardingStatus);
       userHasAuthenticated(true);
-      nav("/selectRole");
+      // nav("/selectRole");
+      onboarding(nav, user, onboardingStatus, pathname);
     } catch (e) {
       onError(e);
       setIsLoading(false);

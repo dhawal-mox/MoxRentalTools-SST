@@ -2,8 +2,8 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable,
-    userIdentityTable, stripeCheckoutSessions, stripeIdentityVerificationSessions,
+  const { usersTable, userIdentityTable, userOnboardingStatusTable,
+    stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
     plaidAuthItemIds, plaidAuthItemDetails, plaidAuthAccounts, plaidAuthAccountIds,
@@ -19,7 +19,7 @@ export function ApiStack({ stack }: StackContext) {
   const api = new Api(stack, "Api", {
     defaults: {
       function: {
-        bind: [usersTable, userIdentityTable,
+        bind: [usersTable, userIdentityTable, userOnboardingStatusTable,
               stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
               plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
@@ -38,6 +38,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users/role": "packages/functions/src/users/updateUserRole.main",
       "POST /users/purchased": "packages/functions/src/users/userPurchased.main",
       "POST /users/tenantProfile": "packages/functions/src/users/getAccounts.main",
+      "POST /users/getUserOnboardingStatus": "packages/functions/src/users/getUserOnboardingStatus.main",
+      "POST /users/userConfirmedPayrollAndBankSupported": "packages/functions/src/users/userConfirmedPayrollAndBankSupported.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",

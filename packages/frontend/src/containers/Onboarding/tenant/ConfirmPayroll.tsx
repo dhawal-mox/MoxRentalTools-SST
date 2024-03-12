@@ -6,6 +6,10 @@ import { onError } from "../../../lib/errorLib";
 import Form from "react-bootstrap/Form";
 import LoaderButton from "../../../components/LoaderButton";
 import { Badge, Button, ListGroup, Stack } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getUserOnboardingStatus, userConfirmedPayrollAndBankSupported } from "../../../lib/userLib";
+import { useAppContext } from "../../../lib/contextLib";
+import { onboarding } from "../../../lib/onboardingLib";
 
 export default function ConfirmPayroll() {
     const [fields, handleFieldChange] = useFormFields({
@@ -20,6 +24,10 @@ export default function ConfirmPayroll() {
     const [isLoading, setIsLoading] = useState(false);
     const [ supportedInstitutions, setSupportedInstitutions ] = useState<InstitutionType[]>([]);
     const [ selectedInstitutionType, setSelectedInstitutionType ] = useState("payroll");
+    const {user} = useAppContext();
+    const { setUserOnboardingStatus } = useAppContext();
+    const { pathname } = useLocation();
+    const nav = useNavigate();
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -34,6 +42,13 @@ export default function ConfirmPayroll() {
             onError(error);
         }
         setIsLoading(false);
+    }
+
+    async function handleConfirm() {
+        userConfirmedPayrollAndBankSupported(user);
+        const newUserOnboardingSession = await getUserOnboardingStatus(user);
+        setUserOnboardingStatus(newUserOnboardingSession);
+        onboarding(nav, user, newUserOnboardingSession, pathname);
     }
     
     return(
@@ -110,8 +125,9 @@ export default function ConfirmPayroll() {
                         <Button
                         className="continueButton"
                         disabled={supportedInstitutions.length == 0}
+                        onClick={() => handleConfirm()}
                         >
-                            Continue
+                            Confirm
                         </Button>
                     }
                 </Stack>

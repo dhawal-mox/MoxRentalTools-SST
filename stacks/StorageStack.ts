@@ -22,6 +22,15 @@ export function StorageStack({ stack }: StackContext) {
     primaryIndex: { partitionKey: "identityId" },
   });
 
+  const userOnboardingStatusTable = new Table(stack, "UserOnboardingStatus", {
+    fields: {
+      userId: "string",
+      status: "string",
+      statusDetail: "string",
+    },
+    primaryIndex: { partitionKey: "userId" },
+  });
+
   const stripeCheckoutSessions = new Table(stack, "StripePurchases", {
     fields: {
       userId: "string",
@@ -170,7 +179,7 @@ export function StorageStack({ stack }: StackContext) {
   const bucket = new Bucket(stack, "Uploads");
 
   return {
-    usersTable, userIdentityTable,
+    usersTable, userIdentityTable, userOnboardingStatusTable,
     stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayrollW2sForAccounts, plaidPayStubsForAccounts,

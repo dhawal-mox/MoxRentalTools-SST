@@ -2,6 +2,7 @@ import * as uuid from "uuid";
 import { Table } from "sst/node/table";
 import handler from "@mox-rental-tools-vanilla/core/handler";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
+import { createUserOnboardingStatus } from "./onboardingStatus";
 
 export const main = handler(async (event) => {
   let data = {
@@ -39,6 +40,9 @@ export const main = handler(async (event) => {
   };
 
   await dynamoDb.put(userIdentityParams);
+
+  // also create onboaring status for new user
+  await createUserOnboardingStatus(params.Item.userId, "new_user", "");
 
   delete params.Item.identityId;
   return JSON.stringify(params.Item);
