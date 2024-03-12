@@ -8,6 +8,8 @@ import LoaderButton from "../../components/LoaderButton";
 import { onError } from "../../lib/errorLib";
 import { useFormFields } from "../../lib/hooksLib";
 import { getCurrentUser } from "../../lib/userLib";
+import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [fields, handleFieldChange] = useFormFields({
@@ -18,6 +20,7 @@ export default function Login() {
 
   const { userHasAuthenticated } = useAppContext();
   const { setUser } = useAppContext();
+  const nav = useNavigate();
 
   function validateForm() {
     return fields.email.length > 0 && fields.password.length > 0;
@@ -70,6 +73,9 @@ export default function Login() {
                 Login
             </LoaderButton>
         </Stack>
+        <Button className="forgotPasswordButton" onClick={() => nav("/forgotPassword")}>
+        Forgot Password
+        </Button>
       </Form>
     </div>
   );
