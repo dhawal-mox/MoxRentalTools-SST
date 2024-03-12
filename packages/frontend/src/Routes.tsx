@@ -13,6 +13,7 @@ import StripeIDVerification from "./containers/Onboarding/StripeIDVerification.t
 import PlaidPayrollLink from "./containers/Onboarding/tenant/PlaidPayrollLink.tsx";
 import PlaidAuthLink from "./containers/Onboarding/tenant/PlaidAuthLink.tsx";
 import TenantProfile from "./containers/TenantProfile.tsx";
+import ForgotPassword from "./containers/Authentication/ForgotPassword.tsx";
 
 export default function Links() {
   return (
@@ -32,6 +33,11 @@ export default function Links() {
       <Route path="/signup" element={
         <UnauthenticatedRoute>
           <Signup />
+        </UnauthenticatedRoute>
+      } />
+      <Route path="/forgotPassword" element={
+        <UnauthenticatedRoute>
+          <ForgotPassword />
         </UnauthenticatedRoute>
       } />
       <Route path="/selectRole" element={

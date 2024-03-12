@@ -7,4 +7,11 @@
       margin: 0 auto;
       max-width: 320px;
     }
+
+    .forgotPasswordButton {
+      /* margin-left: auto;
+      margin-right: 0; */
+      margin-top: 20px;
+      width: 100%;
+    }
   }
