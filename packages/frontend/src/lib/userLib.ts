@@ -36,8 +36,24 @@ export async function getUserPurchased(user: UserType) {
     return user;
 }
 
+export async function getUserOnboardingStatus(user: UserType) {
+    return API.post("mox", `/users/getUserOnboardingStatus`, {
+        body: {
+            user: user,
+        },
+    });
+}
+
 export async function getTenantProfile(user: UserType) {
     return API.post("mox", `/users/tenantProfile`, {
+        body: {
+            user: user,
+        },
+    });
+}
+
+export async function userConfirmedPayrollAndBankSupported(user: UserType) {
+    return API.post("mox", `users/userConfirmedPayrollAndBankSupported`, {
         body: {
             user: user,
         },

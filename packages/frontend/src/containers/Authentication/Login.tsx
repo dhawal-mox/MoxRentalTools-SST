@@ -7,7 +7,7 @@ import { useAppContext } from "../../lib/contextLib";
 import LoaderButton from "../../components/LoaderButton";
 import { onError } from "../../lib/errorLib";
 import { useFormFields } from "../../lib/hooksLib";
-import { getCurrentUser } from "../../lib/userLib";
+import { getCurrentUser, getUserOnboardingStatus } from "../../lib/userLib";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +19,8 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { userHasAuthenticated } = useAppContext();
-  const { setUser } = useAppContext();
+  const { user, setUser } = useAppContext();
+  const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
   const nav = useNavigate();
 
   function validateForm() {
@@ -32,7 +33,9 @@ export default function Login() {
 
     try {
         await Auth.signIn(fields.email, fields.password);
-        setUser(await getCurrentUser());
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+        setUserOnboardingStatus(await getUserOnboardingStatus(currentUser));
         userHasAuthenticated(true);
     } catch (error) {
         // Prints the full error

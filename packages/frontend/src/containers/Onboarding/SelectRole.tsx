@@ -3,8 +3,9 @@ import "./SelectRole.css";
 import { Stack } from "react-bootstrap";
 import { useAppContext } from '../../lib/contextLib';
 import { UserRole } from '../../types/user';
-import { getCurrentUser, updateUserRole } from '../../lib/userLib';
-import { useNavigate } from 'react-router-dom';
+import { getCurrentUser, getUserOnboardingStatus, updateUserRole } from '../../lib/userLib';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { onboarding } from '../../lib/onboardingLib';
 
 interface RoleCardProps {
   title: string;
@@ -33,7 +34,11 @@ export default function SelectRole() {
   ];
 
   const { user, setUser } = useAppContext();
+  const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
   const nav = useNavigate();
+  const { pathname } = useLocation();
+
+  onboarding(nav, user, userOnboardingStatus, pathname);
 
   async function handleSelect(userRole: UserRole)  {
     console.log(`Selected role: ${userRole}`);
@@ -41,8 +46,10 @@ export default function SelectRole() {
     await updateUserRole(user, userRole);
     const updatedUser = await getCurrentUser();
     setUser(updatedUser);
+    setUserOnboardingStatus(await getUserOnboardingStatus(updatedUser));
     console.log(`Updated user received: ${updatedUser}`);
-    nav('/');
+    // nav('/');
+    onboarding(nav, user, userOnboardingStatus, pathname);
   };
 
   return (

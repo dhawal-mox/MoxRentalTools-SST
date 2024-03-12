@@ -8,13 +8,14 @@ import { AppContext, AppContextType } from "./lib/contextLib";
 import { Auth } from "aws-amplify";
 import { useNavigate } from "react-router-dom";
 import { onError } from "./lib/errorLib";
-import { getCurrentUser, getUserPurchased } from "./lib/userLib";
+import { getCurrentUser, getUserOnboardingStatus, getUserPurchased } from "./lib/userLib";
 
 function App() {
 
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [isAuthenticated, userHasAuthenticated] = useState(false);
   const [user, setUser] = useState({});
+  const [userOnboardingStatus, setUserOnboardingStatus] = useState({});
   const nav = useNavigate();
 
   useEffect(() => {
@@ -27,6 +28,8 @@ function App() {
       let user = await getCurrentUser();
       user = await getUserPurchased(user);
       setUser(user);
+      const retreivedUserOnboardingStatus = await getUserOnboardingStatus(user);
+      setUserOnboardingStatus(retreivedUserOnboardingStatus);
       userHasAuthenticated(true);
     } catch (e) {
       if (e !== "No current user") {
@@ -69,7 +72,7 @@ function App() {
           </Navbar.Collapse>
         </Navbar>
         <AppContext.Provider
-          value={{ isAuthenticated, userHasAuthenticated, user, setUser } as AppContextType}
+          value={{ isAuthenticated, userHasAuthenticated, user, setUser, userOnboardingStatus, setUserOnboardingStatus } as AppContextType}
         >
           <Routes />
         </AppContext.Provider>
