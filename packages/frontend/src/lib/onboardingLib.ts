@@ -19,7 +19,9 @@ export function onboarding(nav: NavigateFunction, user: UserType, userOnboarding
             break;
         case "selected_role":
             if(user.role?.valueOf === UserRole.Tenant.valueOf){
-                nav("/tenantFeatures");
+                if(pathname != "/tenantSetup") {
+                    nav("/tenantSetup");
+                }
             } else if(user.role == UserRole.Landlord) {
                 // nav("/landlordSetup");
             } else {

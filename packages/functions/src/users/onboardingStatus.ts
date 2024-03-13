@@ -44,3 +44,7 @@ export async function updateUserOnboardingStatus(userId: string, status: string,
     };
     await dynamodb.update(updateUserOnboardingStatusParams);
 }
+
+export function editStatusDetail(statusDetail: string, newDetail: string){
+    return `${statusDetail}${statusDetail.length > 0 ? ',': ''}${newDetail}`;
+}

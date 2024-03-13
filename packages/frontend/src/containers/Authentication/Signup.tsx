@@ -26,7 +26,7 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [newUser, setNewUser] = useState<null | ISignUpResult>(null);
   const { setUser } = useAppContext();
-  const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
+  const { setUserOnboardingStatus } = useAppContext();
   const { pathname } = useLocation();
 
   function validateForm() {

@@ -48,6 +48,7 @@ export default function ConfirmPayroll() {
         userConfirmedPayrollAndBankSupported(user);
         const newUserOnboardingSession = await getUserOnboardingStatus(user);
         setUserOnboardingStatus(newUserOnboardingSession);
+        console.log(newUserOnboardingSession);
         onboarding(nav, user, newUserOnboardingSession, pathname);
     }
     
