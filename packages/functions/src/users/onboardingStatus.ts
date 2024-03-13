@@ -28,6 +28,8 @@ export async function createUserOnboardingStatus(userId: string, status: string,
 }
 
 export async function updateUserOnboardingStatus(userId: string, status: string, statusDetail?: string) {
+    const newStatus = completedSetupSteps(status, (statusDetail ? statusDetail : "")) ? "onboarded" : status;
+    console.log(`new status = ${newStatus}`);
     const updateUserOnboardingStatusParams = {
         TableName: Table.UserOnboardingStatus.tableName,
         Key: {
@@ -35,7 +37,7 @@ export async function updateUserOnboardingStatus(userId: string, status: string,
         },
         UpdateExpression: "SET #statusField = :status, statusDetail = :statusDetail",
         ExpressionAttributeValues: {
-            ":status": status,
+            ":status": newStatus,
             ":statusDetail": statusDetail ? statusDetail : "",
         },
         ExpressionAttributeNames: {
@@ -47,4 +49,48 @@ export async function updateUserOnboardingStatus(userId: string, status: string,
 
 export function editStatusDetail(statusDetail: string, newDetail: string){
     return `${statusDetail}${statusDetail.length > 0 ? ',': ''}${newDetail}`;
+}
+
+const tenantSetupSteps = [
+    "plaid_payroll_bank_supported_confirmed",
+    "payment_complete",
+    "id_submitted",
+    "payroll_linked",
+    "bank_linked",
+];
+
+const landlordSetupSteps = [
+    "payment_complete",
+    "id_submitted",
+];
+
+const agentSetupSteps = [
+    "payment_complete",
+    "id_submitted",
+    "license_number_submitted",
+];
+
+function completedSetupSteps(status: string, statusDetail: string){
+    let steps: string[] = [];
+    switch(status) {
+        case "tenant_setup":
+            steps = tenantSetupSteps;
+            break;
+        case "landlord_setup":
+            steps = landlordSetupSteps;
+            break;
+        case "agent_setup":
+            steps = agentSetupSteps;
+            break;
+        default:
+            return false;
+    }
+    const details = new Set(statusDetail.split(","));
+    let completed = true;
+    steps.map(step => {
+        if(!details.has(step)){
+            completed = false;
+        }
+    });
+    return completed;
 }

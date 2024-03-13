@@ -6,7 +6,7 @@ export const main = handler(async (event) => {
     verifyRequestUser(event);
     const user = JSON.parse(event.body!).user;
     const currentStatus = await getUserOnboardingStatus(user.userId);
-    const updatedStatusDetail = editStatusDetail(currentStatus.statusDetail, "payment_complete");
+    const updatedStatusDetail = editStatusDetail(currentStatus.statusDetail, "bank_linked");
     updateUserOnboardingStatus(user.userId, currentStatus.status, updatedStatusDetail);
     return "";
 });

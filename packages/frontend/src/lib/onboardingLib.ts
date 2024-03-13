@@ -5,30 +5,30 @@ import { UserRole, UserType } from "../types/user";
 export function onboarding(nav: NavigateFunction, user: UserType, userOnboardingStatus: OnboardingStatusType, pathname: string) {
     // const nav = useNavigate();
     // returns path to navigate to. returns empty string if no navigation required.
+    // console.log(userOnboardingStatus);
     switch(userOnboardingStatus.status) {
         case "new_user":
-            if(pathname == "/selectRole") {
-                return "";
-            }
-            console.log("navigating");
-            nav("/selectRole");
-            return "/selectRole";
-            break;
-        case "onboarded":
+            navigate("/selectRole");
             return;
-            break;
+        case "onboarded":
+            navigate("/");
+            return;
         case "selected_role":
             if(user.role?.valueOf === UserRole.Tenant.valueOf){
-                if(pathname != "/tenantSetup") {
-                    nav("/tenantSetup");
-                }
-            } else if(user.role == UserRole.Landlord) {
-                // nav("/landlordSetup");
+                navigate("/tenantSetup");
+            } else if(user.role?.valueOf == UserRole.Landlord.valueOf) {
+                navigate("/landlordSetup");
             } else {
-                // nav("agentSetup");
+                navigate("agentSetup");
             }
             return;
         case "tenant_setup":
-            // nav("/tenant_setup");
+            navigate("/tenantSetup");
+    }
+
+    function navigate(toPath: string) {
+        if(pathname != toPath) {
+            nav(toPath);
+        }
     }
 }

@@ -64,6 +64,30 @@ export async function userSuccessfullyPurchased(user: UserType) {
     return API.post("mox", `/users/userSuccessfullyPurchased`, {
         body: {
             user: user,
-        }
-    })
+        },
+    });
+}
+
+export async function userSuccessfullySubmittedId(user: UserType) {
+    return API.post("mox", `/users/userSuccessfullySubmittedId`, {
+        body: {
+            user: user,
+        },
+    });
+}
+
+export async function userSuccessfullyConnectedPlaidAuth(user: UserType) {
+    return API.post("mox", `/users/userSuccessfullyConnectedPlaidAuth`, {
+        body: {
+            user: user,
+        },
+    });
+}
+
+export async function userSuccessfullyConnectedPlaidPayroll(user: UserType) {
+    return API.post("mox", `/users/userSuccessfullyConnectedPlaidPayroll`, {
+        body: {
+            user: user,
+        },
+    });
 }

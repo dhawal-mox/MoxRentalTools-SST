@@ -5,8 +5,11 @@ import { Container, ListGroup, Button, Stack } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import "./TenantSetup.css";
 import { BsArrowRepeat } from "react-icons/bs";
-import { getUserOnboardingStatus } from "../../../lib/userLib";
-import { createStripeCheckoutSession } from "../../../lib/stripeLib";
+import { getUserOnboardingStatus, userSuccessfullyConnectedPlaidAuth, userSuccessfullyConnectedPlaidPayroll, userSuccessfullySubmittedId } from "../../../lib/userLib";
+import { createStripeCheckoutSession, createStripeVerificationSession, getStripePublishableKey } from "../../../lib/stripeLib";
+import { loadStripe } from "@stripe/stripe-js";
+import { getPlaidAuthLinkToken, getPlaidIncomeLinkToken, setAuthAccessToken } from "../../../lib/plaidLib";
+import LaunchLink from "./PlaidLinkLauncher";
 
 export default function TenantSetup() {
     const { user, userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
@@ -14,8 +17,8 @@ export default function TenantSetup() {
     const { pathname } = useLocation();
 
     const [ loadingStep, setLoadingStep ] = useState(0);
-
-    onboarding(nav, user, userOnboardingStatus, pathname);
+    const [ plaidIncomeLinkToken, setPlaidIncomeLinkToken ] = useState("");
+    const [ plaidAuthLinkToken, setPlaidAuthLinkToken ] = useState("");
 
     interface Step {
         id: number;
@@ -34,10 +37,19 @@ export default function TenantSetup() {
 
     const [steps, setSteps] = useState<Step[]>(initialSteps);
 
+    async function onLoad() {
+        setUserOnboardingStatus(await getUserOnboardingStatus(user));
+    }
+
     useEffect(() => {
+        onLoad();
+    }, []);
+
+    useEffect(() => {
+        onboarding(nav, user, userOnboardingStatus, pathname);
         let completedSteps = new Set();
         const statusDetails = userOnboardingStatus.statusDetail!.split(',');
-        console.log(statusDetails);
+        // console.log(statusDetails);
         console.log(userOnboardingStatus);
         for(const detail of statusDetails) {
             switch(detail) {
@@ -47,7 +59,7 @@ export default function TenantSetup() {
                 case "payment_complete":
                     completedSteps.add(2);
                     break;
-                case "id_verified": 
+                case "id_submitted": 
                     completedSteps.add(3);
                     break;
                 case "payroll_linked":
@@ -61,35 +73,73 @@ export default function TenantSetup() {
             completedSteps.has(step.id) ? { ...step, completed: true } : step
         );
         setSteps(updatedSteps);
+        setLoadingStep(0);
     }, [userOnboardingStatus]);
 
-    useEffect(() => {
-        // onLoad();
-    }, [])
-
-    async function onLoad(){
-        const updatedUserOnboardingStatus = await getUserOnboardingStatus(user);
-        setUserOnboardingStatus(updatedUserOnboardingStatus);
-    }
-
-    const handleCompleteStep = (stepId: number) => {
-        // const updatedSteps = steps.map(step =>
-        //     step.id === stepId ? { ...step, completed: true } : step
-        // );
-        // setSteps(updatedSteps);
-    };
-
     async function startStep(stepId: number) {
+        stepId != 1 ? setLoadingStep(stepId) : setLoadingStep(0);
         switch(stepId) {
             case 1:
                 nav("/confirmPayroll");
                 break;
             case 2: // stripe checkout
-                setLoadingStep(2);
+                // after successful checkout, user is redirected to StripePurchase.tsx (/purchase). This updates the onboarding status detail
                 const stripeCheckoutCreateResult = await createStripeCheckoutSession(user);
                 const sessionUrl = stripeCheckoutCreateResult.sessionUrl;
                 window.location.href = sessionUrl;
+                break;
+            case 3: //stripe id verify
+                handleStripeIdVerify();
+                break;
+            case 4:
+                handlePlaidPayroll();
+                break;
+            case 5:
+                handlePlaidAuth();
+                break;
         }
+    }
+
+    async function handleStripeIdVerify() {
+        const stripePK = (await getStripePublishableKey()).stripePublishableKey;
+        const stripe = await loadStripe(stripePK);
+        const clientSecret = (await createStripeVerificationSession(user)).sessionClientSecret;
+        const { error } = await stripe!.verifyIdentity(clientSecret);
+        if(!error) {
+            // verification submitted. update user onboarding status
+            await userSuccessfullySubmittedId(user);
+            setUserOnboardingStatus(await getUserOnboardingStatus(user));
+        }
+    }
+
+    async function handlePlaidPayroll() {
+        const linkToken = await fetchPlaidLinkToken(true);
+        setPlaidIncomeLinkToken(linkToken);
+    }
+
+    async function handlePlaidAuth() {
+        const linkToken = await fetchPlaidLinkToken(false);
+        setPlaidAuthLinkToken(linkToken);
+    }
+
+    async function plaidIncomeSuccess(public_token: string) {
+        console.log("payroll success");
+        await userSuccessfullyConnectedPlaidPayroll(user);
+        setUserOnboardingStatus(await getUserOnboardingStatus(user));
+    }
+
+    async function plaidAuthSuccess(public_token: string) {
+        console.log("auth success");
+        await setAuthAccessToken(user, public_token);
+        await userSuccessfullyConnectedPlaidAuth(user);
+        setUserOnboardingStatus(await getUserOnboardingStatus(user));
+    }
+
+    async function fetchPlaidLinkToken(payroll: boolean) {
+        const linkTokenGetter = payroll ? getPlaidIncomeLinkToken : getPlaidAuthLinkToken;
+        const response = await linkTokenGetter(user);
+        console.log(`fetchLinkToken. link_token=${response.link_token}`);
+        return response.link_token;
     }
 
     return (
@@ -112,15 +162,18 @@ export default function TenantSetup() {
                     <Button
                     variant={step.completed ? "success" : "primary"}
                     onClick={() => startStep(step.id)}
-                    disabled={index > 0 && !steps[index - 1].completed}
+                    disabled={(index > 0 && !steps[index - 1].completed) || step.id == loadingStep}
+                    className="LoaderButton"
                     >
                     {step.id == loadingStep && <BsArrowRepeat className="spinning" />}
-                    {step.completed ? "Completed" : "Start"}
+                    {step.completed ? "Completed" : step.id == loadingStep ? "Working" : "Start"}
                     </Button>
                 </ListGroup.Item>
                 ))}
             </ListGroup>
         </Container>
+        <LaunchLink token={plaidAuthLinkToken} successCallback={plaidAuthSuccess} />
+        <LaunchLink token={plaidIncomeLinkToken} successCallback={plaidIncomeSuccess} />
         </div>
     );
 }
