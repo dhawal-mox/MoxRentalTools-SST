@@ -19,6 +19,7 @@ export default function ConfirmPayroll() {
     interface InstitutionType {
         name: string,
         url: string,
+        institution_id: string,
     };
 
     const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +49,7 @@ export default function ConfirmPayroll() {
         userConfirmedPayrollAndBankSupported(user);
         const newUserOnboardingSession = await getUserOnboardingStatus(user);
         setUserOnboardingStatus(newUserOnboardingSession);
+        console.log(newUserOnboardingSession);
         onboarding(nav, user, newUserOnboardingSession, pathname);
     }
     
@@ -106,7 +108,7 @@ export default function ConfirmPayroll() {
                     <h3 className="description">Supported Institutions:</h3>
                     <ListGroup className="resultList">
                         {supportedInstitutions && supportedInstitutions.map((institution) => (
-                            <ListGroup.Item key={institution.name} className="list-item-right-control">
+                            <ListGroup.Item key={institution.institution_id} className="list-item-right-control">
                                 <div className="upperRow">
                                     <div className="fw-bold">{institution.name}</div>
                                     <Badge className="supportedBadge" bg="success">supported</Badge>

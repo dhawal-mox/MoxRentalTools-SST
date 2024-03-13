@@ -19,8 +19,8 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const { userHasAuthenticated } = useAppContext();
-  const { user, setUser } = useAppContext();
-  const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
+  const { setUser } = useAppContext();
+  const { setUserOnboardingStatus } = useAppContext();
   const nav = useNavigate();
 
   function validateForm() {

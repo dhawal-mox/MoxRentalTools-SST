@@ -14,9 +14,9 @@ export default function PlaidAuthLink() {
         console.log("ready");
     }
 
-    const linkSuccess = (public_token: string) => {
+    const linkSuccess = async (public_token: string) => {
         // console.log(`linkSuccess. public_token=${public_token}`);
-        setAuthAccessToken(user, public_token);
+        await setAuthAccessToken(user, public_token);
     }
 
     const fetchLinkToken = async () => {

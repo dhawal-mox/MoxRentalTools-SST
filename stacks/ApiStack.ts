@@ -40,6 +40,10 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users/tenantProfile": "packages/functions/src/users/getAccounts.main",
       "POST /users/getUserOnboardingStatus": "packages/functions/src/users/getUserOnboardingStatus.main",
       "POST /users/userConfirmedPayrollAndBankSupported": "packages/functions/src/users/userConfirmedPayrollAndBankSupported.main",
+      "POST /users/userSuccessfullyPurchased": "packages/functions/src/users/userSuccessfullyPurchased.main",
+      "POST /users/userSuccessfullySubmittedId": "packages/functions/src/users/userSuccessfullySubmittedId.main",
+      "POST /users/userSuccessfullyConnectedPlaidAuth": "packages/functions/src/users/userSuccessfullyConnectedPlaidAuth.main",
+      "POST /users/userSuccessfullyConnectedPlaidPayroll": "packages/functions/src/users/userSuccessfullyConnectedPlaidPayroll.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",

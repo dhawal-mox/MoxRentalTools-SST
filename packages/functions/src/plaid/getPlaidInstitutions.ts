@@ -31,6 +31,7 @@ export const main = handler(async (event) => {
     result = response.data.institutions.map(institution => ({
       name: institution.name,
       url: institution.url,
+      institution_id: institution.institution_id,
     }));
   } catch (error) {
     // Handle error

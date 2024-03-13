@@ -2,7 +2,6 @@ import { APIGatewayProxyEventHeaders } from "aws-lambda";
 import { PlaidApi } from "plaid";
 import { jwtVerify, importJWK, JWTVerifyResult } from "jose";
 import * as jwt_decode from "jwt-decode";
-import { Sha256 } from "@aws-crypto/sha256-js";
 import safeCompare from "safe-compare";
 import { sha224, sha256 } from "js-sha256";
 

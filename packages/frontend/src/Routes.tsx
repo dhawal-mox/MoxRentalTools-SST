@@ -14,6 +14,7 @@ import PlaidPayrollLink from "./containers/Onboarding/tenant/PlaidPayrollLink.ts
 import PlaidAuthLink from "./containers/Onboarding/tenant/PlaidAuthLink.tsx";
 import TenantProfile from "./containers/TenantProfile.tsx";
 import ForgotPassword from "./containers/Authentication/ForgotPassword.tsx";
+import TenantSetup from "./containers/Onboarding/tenant/TenantSetup.tsx";
 
 export default function Links() {
   return (
@@ -73,6 +74,11 @@ export default function Links() {
       <Route path="/plaidAuth" element={
         <AuthenticatedRoute>
           <PlaidAuthLink />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/tenantSetup" element={
+        <AuthenticatedRoute>
+          <TenantSetup />
         </AuthenticatedRoute>
       } />
       <Route path="/tenantProfile" element={

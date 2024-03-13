@@ -3,6 +3,7 @@ import { Config } from "sst/node/config";
 import handler from "@mox-rental-tools-vanilla/core/handler";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
 import { Table } from "sst/node/table";
+import { editStatusDetail, getUserOnboardingStatus, updateUserOnboardingStatus } from "src/users/onboardingStatus";
 
 export const main = handler(async (event) => {
 
@@ -80,6 +81,11 @@ const fullFillOrder = async (sessionWithLineItems: Stripe.Checkout.Session) => {
     };
     
     await dynamoDb.put(params);
+
+    // also update user onboarding status
+    const userOnboardingStatus = await getUserOnboardingStatus(userId!);
+    const newStatusDetail = editStatusDetail(userOnboardingStatus.statusDetail, "id_submitted");
+    await updateUserOnboardingStatus(userId!, userOnboardingStatus.status, newStatusDetail);
 }
 
 const storeStripeIdentityVerificationResult = async(verificationSession: Stripe.Identity.VerificationSession) => {
@@ -93,4 +99,9 @@ const storeStripeIdentityVerificationResult = async(verificationSession: Stripe.
         },
     };
     await dynamoDb.put(putStripeIdentityVerificationSessionParams);
+
+    // also update user onboarding status
+    const userOnboardingStatus = await getUserOnboardingStatus(verificationReport.client_reference_id!);
+    const newStatusDetail = editStatusDetail(userOnboardingStatus.statusDetail, "id_submitted");
+    await updateUserOnboardingStatus(verificationReport.client_reference_id!, userOnboardingStatus.status, newStatusDetail);
 }

@@ -31,5 +31,5 @@ export const main = handler(async (event) => {
         },
       });
 
-    return JSON.stringify({ sessionUrl: verificationSession.url });
+    return JSON.stringify({ sessionClientSecret: verificationSession.client_secret });
 });

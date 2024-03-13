@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import "./SelectRole.css";
 import { Stack } from "react-bootstrap";
 import { useAppContext } from '../../lib/contextLib';
@@ -6,6 +6,7 @@ import { UserRole } from '../../types/user';
 import { getCurrentUser, getUserOnboardingStatus, updateUserRole } from '../../lib/userLib';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { onboarding } from '../../lib/onboardingLib';
+import { OnboardingStatusType } from '../../types/onboardingStatus';
 
 interface RoleCardProps {
   title: string;
@@ -37,8 +38,13 @@ export default function SelectRole() {
   const { userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
   const nav = useNavigate();
   const { pathname } = useLocation();
+  const [ updatedUserOnboardingStatus, setUpdatedUserOnboardingStatus ] = useState<OnboardingStatusType>({});
 
   onboarding(nav, user, userOnboardingStatus, pathname);
+
+  useEffect(() => {
+    onboarding(nav, user, userOnboardingStatus, pathname);
+  }, [updatedUserOnboardingStatus]);
 
   async function handleSelect(userRole: UserRole)  {
     console.log(`Selected role: ${userRole}`);
@@ -49,7 +55,6 @@ export default function SelectRole() {
     setUserOnboardingStatus(await getUserOnboardingStatus(updatedUser));
     console.log(`Updated user received: ${updatedUser}`);
     // nav('/');
-    onboarding(nav, user, userOnboardingStatus, pathname);
   };
 
   return (

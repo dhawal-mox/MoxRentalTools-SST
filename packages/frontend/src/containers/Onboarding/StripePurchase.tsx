@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { createStripeCheckoutSession } from "../../lib/stripeLib";
 import { useAppContext } from "../../lib/contextLib";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { userSuccessfullyPurchased } from "../../lib/userLib";
+import { onboarding } from "../../lib/onboardingLib";
 
 export default function StripePurchase() {
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAppContext();
+  const { userOnboardingStatus } = useAppContext();
   const nav = useNavigate();
+  const {pathname} = useLocation();
 
   useEffect(() => {
     // Check to see if this is a redirect back from Checkout
     const query = new URLSearchParams(window.location.search);
 
     if (query.get("success")) {
-      setMessage("Order placed! You will receive an email confirmation.");
-      nav('/idVerify');
+      paymentSuccessful();
     }
 
     if (query.get("canceled")) {
@@ -22,7 +26,15 @@ export default function StripePurchase() {
         ""
       );
     }
+    onboarding(nav, user, userOnboardingStatus, pathname);
   }, []);
+
+  async function paymentSuccessful() {
+    setIsLoading(true);
+    setMessage("Payment successful. Thank you.");
+    await userSuccessfullyPurchased(user);
+    setIsLoading(false);
+  }
 
   const ProductDisplay: React.FC = ({}) => (
     <div>
@@ -53,8 +65,8 @@ export default function StripePurchase() {
 
   return (
     <div className="StripePurchase">
-        {message === "" && <ProductDisplay />}
-        {message != "" && <p>{message}</p>}
+        {/* {message === "" && <ProductDisplay />}
+        {message != "" && <p>{message}</p>} */}
     </div>
   );
   
