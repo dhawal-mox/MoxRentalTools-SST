@@ -10,6 +10,7 @@ import { createStripeCheckoutSession, createStripeVerificationSession, getStripe
 import { loadStripe } from "@stripe/stripe-js";
 import { getPlaidAuthLinkToken, getPlaidIncomeLinkToken, setAuthAccessToken } from "../../../lib/plaidLib";
 import LaunchLink from "./PlaidLinkLauncher";
+import { onError } from "../../../lib/errorLib";
 
 export default function TenantSetup() {
     const { user, userOnboardingStatus, setUserOnboardingStatus } = useAppContext();
@@ -49,8 +50,6 @@ export default function TenantSetup() {
         onboarding(nav, user, userOnboardingStatus, pathname);
         let completedSteps = new Set();
         const statusDetails = userOnboardingStatus.statusDetail!.split(',');
-        // console.log(statusDetails);
-        console.log(userOnboardingStatus);
         for(const detail of statusDetails) {
             switch(detail) {
                 case "plaid_payroll_bank_supported_confirmed":
@@ -109,6 +108,9 @@ export default function TenantSetup() {
             // verification submitted. update user onboarding status
             await userSuccessfullySubmittedId(user);
             setUserOnboardingStatus(await getUserOnboardingStatus(user));
+        } else {
+            setLoadingStep(0);
+            onError(error);
         }
     }
 
@@ -122,7 +124,7 @@ export default function TenantSetup() {
         setPlaidAuthLinkToken(linkToken);
     }
 
-    async function plaidIncomeSuccess(public_token: string) {
+    async function plaidIncomeSuccess(_public_token: string) {
         console.log("payroll success");
         await userSuccessfullyConnectedPlaidPayroll(user);
         setUserOnboardingStatus(await getUserOnboardingStatus(user));

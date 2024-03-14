@@ -29,6 +29,8 @@ export default function ConfirmPayroll() {
     const { setUserOnboardingStatus } = useAppContext();
     const { pathname } = useLocation();
     const nav = useNavigate();
+    const [ payrollSupported, setPayrollSupported ] = useState(false);
+    const [ bankSupported, setBankSupported ] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -36,9 +38,14 @@ export default function ConfirmPayroll() {
 
         try {
             const institutions = await getPlaidInstitutions(fields.institutionName, selectedInstitutionType);
-            console.log(institutions);
-            console.log(selectedInstitutionType);
             setSupportedInstitutions(institutions);
+            if(institutions.length > 0) {
+                if(selectedInstitutionType == "payroll"){
+                    setPayrollSupported(true);
+                } else {
+                    setBankSupported(true);
+                }
+            }
         } catch(error) {
             onError(error);
         }
@@ -46,10 +53,9 @@ export default function ConfirmPayroll() {
     }
 
     async function handleConfirm() {
-        userConfirmedPayrollAndBankSupported(user);
+        await userConfirmedPayrollAndBankSupported(user);
         const newUserOnboardingSession = await getUserOnboardingStatus(user);
         setUserOnboardingStatus(newUserOnboardingSession);
-        console.log(newUserOnboardingSession);
         onboarding(nav, user, newUserOnboardingSession, pathname);
     }
     
@@ -123,15 +129,13 @@ export default function ConfirmPayroll() {
                             </ListGroup.Item>
                         )}
                     </ListGroup>
-                    {supportedInstitutions.length > 0 && 
-                        <Button
-                        className="continueButton"
-                        disabled={supportedInstitutions.length == 0}
-                        onClick={() => handleConfirm()}
-                        >
-                            Confirm
-                        </Button>
-                    }
+                    <Button
+                    className="continueButton"
+                    disabled={!payrollSupported || !bankSupported}
+                    onClick={() => handleConfirm()}
+                    >
+                        Confirm
+                    </Button>
                 </Stack>
             </Form>
         </div>
