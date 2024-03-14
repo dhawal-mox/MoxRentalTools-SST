@@ -84,7 +84,7 @@ const fullFillOrder = async (sessionWithLineItems: Stripe.Checkout.Session) => {
 
     // also update user onboarding status
     const userOnboardingStatus = await getUserOnboardingStatus(userId!);
-    const newStatusDetail = editStatusDetail(userOnboardingStatus.statusDetail, "id_submitted");
+    const newStatusDetail = editStatusDetail(userOnboardingStatus.statusDetail, "payment_complete");
     await updateUserOnboardingStatus(userId!, userOnboardingStatus.status, newStatusDetail);
 }
 
