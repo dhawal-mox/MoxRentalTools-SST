@@ -106,7 +106,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     });
     // we're expecting just one payroll item
     const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items[0];
-
+    console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
     // insert payrollItem details into table {plaidPayrollItems}
     const putPlaidPayrollItemDetailsParams = {
         TableName: Table.PlaidPayrollItemDetails.tableName,

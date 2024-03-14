@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../lib/contextLib";
 import { onboarding } from "../../../lib/onboardingLib";
-import { Container, ListGroup, Button, Stack } from "react-bootstrap";
+import { Container, ListGroup, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import "./TenantSetup.css";
 import { BsArrowRepeat } from "react-icons/bs";
@@ -135,6 +135,10 @@ export default function TenantSetup() {
         setUserOnboardingStatus(await getUserOnboardingStatus(user));
     }
 
+    function plaidLinkExit() {
+        setLoadingStep(0);
+    }
+
     async function fetchPlaidLinkToken(payroll: boolean) {
         const linkTokenGetter = payroll ? getPlaidIncomeLinkToken : getPlaidAuthLinkToken;
         const response = await linkTokenGetter(user);
@@ -172,8 +176,8 @@ export default function TenantSetup() {
                 ))}
             </ListGroup>
         </Container>
-        <LaunchLink token={plaidAuthLinkToken} successCallback={plaidAuthSuccess} />
-        <LaunchLink token={plaidIncomeLinkToken} successCallback={plaidIncomeSuccess} />
+        {loadingStep==5 && <LaunchLink token={plaidAuthLinkToken} successCallback={plaidAuthSuccess} exitCallback={plaidLinkExit} />}
+        {loadingStep==4 && <LaunchLink token={plaidIncomeLinkToken} successCallback={plaidIncomeSuccess} exitCallback={plaidLinkExit}/>}
         </div>
     );
 }

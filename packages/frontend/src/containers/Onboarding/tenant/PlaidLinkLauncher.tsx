@@ -13,6 +13,7 @@ interface Props {
   isIncome?: boolean;
   token: string;
   successCallback: (_: string) => void;
+  exitCallback?: () => void;
 }
 
 /**
@@ -25,8 +26,6 @@ export default function LaunchLink(props: Props) {
     publicToken: string,
     metadata: PlaidLinkOnSuccessMetadata
   ) => {
-    console.log(`Hooray! Public token is ${publicToken}`);
-    console.log(metadata);
     props.successCallback(publicToken);
   };
 
@@ -34,8 +33,9 @@ export default function LaunchLink(props: Props) {
     error: PlaidLinkError | null,
     metadata: PlaidLinkOnExitMetadata
   ) => {
-    console.log(`Awww...${JSON.stringify(error)}`);
-    console.log(metadata);
+    if(props.exitCallback){
+      props.exitCallback();
+    }
   };
 
   const onEvent = async (
