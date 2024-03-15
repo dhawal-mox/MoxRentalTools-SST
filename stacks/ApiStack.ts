@@ -2,7 +2,7 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, userOnboardingStatusTable,
+  const { usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
     stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
@@ -19,7 +19,7 @@ export function ApiStack({ stack }: StackContext) {
   const api = new Api(stack, "Api", {
     defaults: {
       function: {
-        bind: [usersTable, userIdentityTable, userOnboardingStatusTable,
+        bind: [usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
               stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
               plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
@@ -44,6 +44,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users/userSuccessfullySubmittedId": "packages/functions/src/users/userSuccessfullySubmittedId.main",
       "POST /users/userSuccessfullyConnectedPlaidAuth": "packages/functions/src/users/userSuccessfullyConnectedPlaidAuth.main",
       "POST /users/userSuccessfullyConnectedPlaidPayroll": "packages/functions/src/users/userSuccessfullyConnectedPlaidPayroll.main",
+
+      "POST /agent/submitLicenseInfo": "packages/functions/src/agent/submitLicenseInfo.main",
 
       "POST /plaid/institutions": "packages/functions/src/plaid/getPlaidInstitutions.main",
       "POST /plaid/createLinkToken": "packages/functions/src/plaid/createPlaidLinkToken.main",

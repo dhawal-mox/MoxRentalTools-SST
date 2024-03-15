@@ -7,6 +7,18 @@ export const main = handler(async (event) => {
     const user = JSON.parse(event.body!).user;
     const currentStatus = await getUserOnboardingStatus(user.userId);
     const updatedStatusDetail = editStatusDetail(currentStatus.statusDetail, "payment_complete");
-    updateUserOnboardingStatus(user.userId, currentStatus.status, updatedStatusDetail);
+    let newStatus = currentStatus.status;
+    switch(user.userRole) {
+        case "tenant":
+            newStatus = currentStatus.status;
+            break;
+        case "agent":
+            newStatus = "agent_setup";
+            break;
+        case "landlord":
+            newStatus = "landlord_sestup";
+            break;
+    }
+    updateUserOnboardingStatus(user.userId, newStatus, updatedStatusDetail);
     return "";
 });

@@ -67,7 +67,7 @@ const landlordSetupSteps = [
 const agentSetupSteps = [
     "payment_complete",
     "id_submitted",
-    "license_number_submitted",
+    "license_submitted",
 ];
 
 function completedSetupSteps(status: string, statusDetail: string){
