@@ -1,0 +1,54 @@
+@media all and (min-width: 480px) {
+    .AgentSetup {
+      width: auto;
+      margin: auto;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .mt-3 {
+        width: auto;
+        /* margin-left: auto; */
+        /* align-items: center; */
+        margin: auto;
+        justify-items: center;
+        max-width: 480px;
+    }
+
+    .listGroupItem {
+        width: auto;
+        max-width: 100%; /* Ensures it doesn't overflow the parent container */
+        display: inline-block; /* Shrinks to fit content but respects max-width */
+        margin-left: 0;
+        margin-right: 0;
+    }
+  
+    .card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .headerText {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* .LoaderButton .spinning {
+        margin-right: 7px;
+        top: 2px;
+        animation: spin 1s infinite linear;
+    }
+      
+    @keyframes spin {
+        from {
+            transform: scale(1) rotate(0deg);
+        }
+        to {
+            transform: scale(1) rotate(360deg);
+        }
+    } */
+  }

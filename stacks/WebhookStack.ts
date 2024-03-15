@@ -3,7 +3,7 @@ import { StorageStack } from "./StorageStack";
 import { ApiStack } from "./ApiStack";
 
 export function WebhookStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, userOnboardingStatusTable,
+  const { usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
     stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, 
     plaidPayrollAccounts, plaidPayStubsForAccounts, plaidPayrollW2sForAccounts } = use(StorageStack);
@@ -17,7 +17,7 @@ export function WebhookStack({ stack }: StackContext) {
   const webhook = new Api(stack, "Webhook", {
     defaults: {
       function: {
-        bind: [usersTable, userIdentityTable, userOnboardingStatusTable,
+        bind: [usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
               stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails,
               plaidPayrollAccounts, plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,

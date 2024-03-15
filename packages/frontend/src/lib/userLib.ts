@@ -91,3 +91,12 @@ export async function userSuccessfullyConnectedPlaidPayroll(user: UserType) {
         },
     });
 }
+
+export async function agentSetLicenseInfo(user: UserType, data: any) {
+    return API.post("mox", `/agent/submitLicenseInfo`, {
+        body: {
+            user: user,
+            licenseInfo: data, // {}
+        },
+    })
+}
