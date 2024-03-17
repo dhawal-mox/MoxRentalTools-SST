@@ -3,7 +3,7 @@ import { useAppContext } from "../../../lib/contextLib";
 import { onboarding } from "../../../lib/onboardingLib";
 import { Container, ListGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import "./AgentSetup.css";
+import "./LandlordSetup.css";
 import { getUserOnboardingStatus, userSuccessfullySubmittedId } from "../../../lib/userLib";
 import { createStripeCheckoutSession, createStripeVerificationSession, getStripePublishableKey } from "../../../lib/stripeLib";
 import { loadStripe } from "@stripe/stripe-js";
@@ -27,7 +27,6 @@ export default function TenantSetup() {
     const initialSteps: Step[] = [
     { id: 1, title: 'Payment for Services', description: 'Complete the payment to enable our services.', completed: false},
     { id: 2, title: 'Verify ID', description: 'Verify your US driver\'s license using Stripe Identity.', completed: false},
-    { id: 3, title: 'Submit License #', description: 'Provide a valid Real Estate or Property Management license.', completed: false},
     ];
 
     const [steps, setSteps] = useState<Step[]>(initialSteps);
@@ -35,6 +34,8 @@ export default function TenantSetup() {
     async function onLoad() {
         setUserOnboardingStatus(await getUserOnboardingStatus(user));
     }
+
+    console.log(userOnboardingStatus);
 
     useEffect(() => {
         onLoad();
@@ -51,9 +52,6 @@ export default function TenantSetup() {
                     break;
                 case "id_submitted": 
                     completedSteps.add(2);
-                    break;
-                case "license_submitted" || "no_license_required":
-                    completedSteps.add(3);
                     break;
             }
         }
@@ -77,8 +75,6 @@ export default function TenantSetup() {
             case 2: //stripe id verify
                 handleStripeIdVerify();
                 break;
-            case 3: // get license number
-                handleLicenseSubmission();
         }
     }
 
@@ -97,15 +93,11 @@ export default function TenantSetup() {
         }
     }
 
-    async function handleLicenseSubmission() {
-        nav("/licenseSubmit");
-    }
-
     return (
-        <div className="AgentSetup">
+        <div className="LandlordSetup">
         <Container className="mt-5">
-            <h1>Agent Setup</h1>
-            <h3>Let's setup your agent profile.</h3>
+            <h1>Landlord Setup</h1>
+            <h3>Let's setup your landlord profile.</h3>
             <ListGroup className="mt-3">
                 {steps.map((step, index) => (
                 <ListGroup.Item

@@ -16,7 +16,7 @@ export const main = handler(async (event) => {
             newStatus = "agent_setup";
             break;
         case "landlord":
-            newStatus = "landlord_sestup";
+            newStatus = "landlord_setup";
             break;
     }
     updateUserOnboardingStatus(user.userId, newStatus, updatedStatusDetail);

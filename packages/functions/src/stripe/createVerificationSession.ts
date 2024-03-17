@@ -24,7 +24,7 @@ export const main = handler(async (event) => {
         options: {
             document: {
                 allowed_types: ['driving_license'],
-                require_id_number: true,
+                require_id_number: data.user.userRole == "tenant" ? true : false,
                 require_live_capture: true,
                 require_matching_selfie: true,
             },

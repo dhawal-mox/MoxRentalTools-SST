@@ -17,6 +17,7 @@ import ForgotPassword from "./containers/Authentication/ForgotPassword.tsx";
 import TenantSetup from "./containers/Onboarding/tenant/TenantSetup.tsx";
 import AgentSetup from "./containers/Onboarding/agent/AgentSetup.tsx";
 import LicenseSubmit from "./containers/Onboarding/agent/LicenseSubmit.tsx";
+import LandlordSetup from "./containers/Onboarding/landlord/LandlordSetup.tsx";
 
 export default function Links() {
   return (
@@ -93,6 +94,11 @@ export default function Links() {
           <LicenseSubmit />
         </AuthenticatedRoute>
       }/>
+      <Route path="landlordSetup" element={
+        <AuthenticatedRoute>
+          <LandlordSetup />
+        </AuthenticatedRoute>
+      } />
       <Route path="/tenantProfile" element={
         <AuthenticatedRoute>
           <TenantProfile />
