@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Col, Row, Alert } from 'react-bootstrap';
+import { Form, Col, Row, Alert } from 'react-bootstrap';
 import { states } from "./states";
 import "./LicenseSubmit.css"
 import LoaderButton from '../../../components/LoaderButton';

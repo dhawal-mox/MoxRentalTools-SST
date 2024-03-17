@@ -6,6 +6,8 @@ export function onboarding(nav: NavigateFunction, user: UserType, userOnboarding
     // const nav = useNavigate();
     // returns path to navigate to. returns empty string if no navigation required.
     // console.log(user.userRole === UserRole.Agent);
+    // console.log(userOnboardingStatus);
+    // console.log(user.userRole);
     switch(userOnboardingStatus.status) {
         case "new_user":
             navigate("/selectRole");
