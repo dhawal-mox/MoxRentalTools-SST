@@ -129,6 +129,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     // 2. insert w2 details for each account into table {plaidPayrollAccountW2s}
     let taxW2ForAccounts: any[] = [];
     let employerNamesW2: any[] = [];
+    let employerNamesPaystub: any[] = [];
     let payrollAccounts: any[] = [];
     let payStubsForAccounts: any[] = [];
     let imagesToFetch: Map<string,string> = new Map();
@@ -158,22 +159,6 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         }
     }
 
-    for(const payrollAccount of plaidPayrollItem.accounts) {
-        const putPlaidPayrollAccountParams = {
-            TableName: Table.PlaidPayrollAccounts.tableName,
-            Item: {
-                payrollItemId: plaidPayrollItem.item_id,
-                accountId: payrollAccount.account_id,
-                payAmount: payrollAccount.rate_of_pay.pay_amount,
-                payRate: payrollAccount.rate_of_pay.pay_rate,
-                payFrequency: payrollAccount.pay_frequency,
-                employerNamesW2: employerNamesW2,
-            },
-        }
-        await dynamodb.put(putPlaidPayrollAccountParams);
-        payrollAccounts.push(putPlaidPayrollAccountParams.Item);
-    }
-
     // 3. insert all paystubs into table {plaidPayStubsForAccounts}
     for(const payrollIncome of plaidPayrollItem.payroll_income){
         const accountId = payrollIncome.account_id!;
@@ -190,7 +175,25 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
             await dynamodb.put(putPlaidPayStubsForAccountsParams);
             payStubsForAccounts.push(putPlaidPayStubsForAccountsParams.Item);
             imagesToFetch.set(payStub.document_id!, payStub.document_metadata.download_url!);
+            employerNamesPaystub.push(payStub.employer.name);
         }
+    }
+
+    for(const payrollAccount of plaidPayrollItem.accounts) {
+        const putPlaidPayrollAccountParams = {
+            TableName: Table.PlaidPayrollAccounts.tableName,
+            Item: {
+                payrollItemId: plaidPayrollItem.item_id,
+                accountId: payrollAccount.account_id,
+                payAmount: payrollAccount.rate_of_pay.pay_amount,
+                payRate: payrollAccount.rate_of_pay.pay_rate,
+                payFrequency: payrollAccount.pay_frequency,
+                employerNamesW2: employerNamesW2,
+                employerNamesPaystub: employerNamesPaystub,
+            },
+        }
+        await dynamodb.put(putPlaidPayrollAccountParams);
+        payrollAccounts.push(putPlaidPayrollAccountParams.Item);
     }
 
     // Function to convert a Buffer into a ReadableStream
