@@ -1,8 +1,9 @@
 import handler from "@mox-rental-tools-vanilla/core/handler";
+import { CreditPayStub, CreditPayStubEmployer } from "plaid";
 import { getPlaidAuthAccounts } from "src/plaid/plaidAuthAccounts";
 import { getPlaidPayrollAccounts } from "src/plaid/plaidPayrollAccounts";
 import { getStripeIDVerificationResult } from "src/stripe/getIdVerificationResult";
-import { BankAccount, IdInfo, PayrollOverview } from "src/util/userAccountsTypes";
+import { BankAccount, IdInfo, PayrollOverview, Paystub } from "src/util/userAccountsTypes";
 import verifyRequestUser from "src/verifyRequestUser";
 import Stripe from "stripe";
 
@@ -10,8 +11,6 @@ export const main = handler(async (event) => {
     verifyRequestUser(event);
     const data = JSON.parse(event.body!);
     const user = data.user;
-    // const authAccounts = await getPlaidAuthAccounts(user.userId);
-    // const payrollAccounts = await getPlaidPayrollAccounts(user.userId);
     
     const { accounts, institutionName, institutionId } = await getPlaidAuthAccounts(user.userId);
     let bankAccounts: BankAccount[] = [];
@@ -47,30 +46,59 @@ export const main = handler(async (event) => {
         validAsOf: idVerificationResult.created*1000,
     }
 
-    const { payrollItem, payrollAccounts, payStubsForAccounts, taxW2ForAccounts } = getPlaidPayrollAccounts(user.userId);
-    const employerNames = new Set();
-    for(const account of payrollAccounts) {
-        account.employerNamesW2.map((employer: string) => {
-            employerNames.add(employer);
-        });
-        account.employerNamesPaystub.map((employer: string) => {
-            employerNames.add(employer);
-        });
+
+    // payroll data: payrollOverview, paystubs, w2s
+    const { payrollItem, payrollAccounts, payStubsForAccounts, taxW2ForAccounts } = await getPlaidPayrollAccounts(user.userId);
+
+    // 1. payrollOverview
+    let employers = new Map();
+    payStubsForAccounts.map((paystub) => {
+        const paystubData = paystub.data as CreditPayStub;
+        if(paystubData.employer) {
+            employers.set(paystubData.employer.name, paystubData.employer);
+        }
+    });
+    
+    if(employers.size > 1){
+        console.info(`Found multiple employers from paystubs for userId: ${user.userId} and payrollItemId: ${payrollItem.itemId}`);
     }
+
+    const employer = employers.get(employers.keys().next().value) as CreditPayStubEmployer;
     
     const payrollOveriew: PayrollOverview = {
-        employerName: Array.from(employerNames).join(', '),
-        employerAddressLine1: string,
-        employerAddressLine2: string,
-        timeEmployed: string,
-        payAmount: string,
-        payRate: string,
-        payFrequency: string,
+        employerName: employer.name!,
+        employerAddressLine1: employer.address.street!,
+        employerAddressLine2: `${employer.address.city}, ${employer.address.region}, ${employer.address.country}\n${employer.address.postal_code}`,
+        timeEmployed: "2 years",
+        payAmount: payrollAccounts[0].payAmount,
+        payFrequency: payrollAccounts[0].payFrequency,
+        payRate: payrollAccounts[0].payRate,
         payrollProvider: payrollItem.institutionName,
         lastUpdatedAt: payrollItem.updatedAt,
     }
 
-
+    // paystubs
+    let paystubs: Paystub[] = [];
+    payStubsForAccounts.map((paystubFromDb) => {
+        const paystubData = paystubFromDb.data as CreditPayStub;
+        const paystub: Paystub = {
+            payDate: paystubData.pay_period_details.pay_date!,
+            payPeriod: `${paystubData.pay_period_details.start_date} - ${paystubData.pay_period_details.end_date}`,
+            grossPay: paystubData.pay_period_details.gross_earnings!,
+            netPay: paystubData.net_pay.current_amount!,
+            isoCurrencyCode: paystubData.net_pay.iso_currency_code!,
+            distribution: paystubData.pay_period_details.distribution_breakdown.map((distribution) => {
+                return {
+                    bankName: distribution.bank_name!,
+                    amount: distribution.current_amount!,
+                    isoCurrencyCode: distribution.iso_currency_code!,
+                    mask: distribution.mask!,
+                }
+            }),
+            documentId: paystubData.document_metadata.download_url ? paystubData.document_id! : "",
+        }
+        paystubs.push(paystub);
+    })
     // return JSON.stringify({
     //     authAccounts: authAccounts,
     //     payrollAccounts: payrollAccounts,
@@ -80,6 +108,8 @@ export const main = handler(async (event) => {
     return JSON.stringify({
         bankAccounts: bankAccounts,
         idInfo: idInfo,
+        payrollOverview: payrollOveriew,
+        paystubs: paystubs,
         // payrollAccounts: payrollAccounts,
     })
 });

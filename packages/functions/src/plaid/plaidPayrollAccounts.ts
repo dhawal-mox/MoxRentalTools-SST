@@ -35,8 +35,6 @@ export async function getPlaidPayrollAccounts(userId: string) {
         const result = fetchPlaidPayrollAccounts(userId, plaidClient, plaidUserRecord);
         return result;
     }
-
-    return {};
 }
 
 function logJSON(s: string, ob: any){
@@ -105,8 +103,10 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         user_token: userToken,
     });
     // we're expecting just one payroll item
-    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items[0];
-    console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
+    // console.log(`payroll items length=${creditPayrollIncomeGetResponse.data.items.length}`);
+    // console.log(JSON.stringify(creditPayrollIncomeGetResponse.data.items))
+    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items.at(-1)!;
+    // console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
     // insert payrollItem details into table {plaidPayrollItems}
     const putPlaidPayrollItemDetailsParams = {
         TableName: Table.PlaidPayrollItemDetails.tableName,
@@ -148,7 +148,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                     Item: {
                         accountId: accountId,
                         documentId: w2Data.document_id,
-                        documentUrl: w2Data.document_metadata.download_url,
+                        documentUrl: w2Data.document_metadata.download_url || "",
                         data: w2Data,
                     },
                 };

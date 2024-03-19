@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../lib/contextLib"
 import { getTenantProfile } from "../../lib/userLib";
 import { Badge, Button, Col, Container, Row, Table } from "react-bootstrap";
-import { BankAccount, IdInfo } from "../../types/userAccountsTypes";
+import { BankAccount, IdInfo, PayrollOverview, Paystub } from "../../types/userAccountsTypes";
 
 export default function TenantProfile() {
     const { user } = useAppContext();
     const [ bankAccounts, setBankAccounts ] = useState<BankAccount[]>();
     const [ idInfo, setIdInfo ] = useState<IdInfo>();
+    const [ payrollOverview, setPayrollOverview ] = useState<PayrollOverview>();
+    const [ paystubs, setPaystubs ] = useState<Paystub[]>();
     
     async function onLoad() {
         // const userProfile = await getTenantProfile(user);
@@ -15,22 +17,14 @@ export default function TenantProfile() {
         const result = await getTenantProfile(user);
         setBankAccounts(result.bankAccounts);
         setIdInfo(result.idInfo);
+        setPayrollOverview(result.payrollOverview);
+        setPaystubs(result.paystubs);
         console.log(result);
     }
 
     useEffect(() => {
         onLoad();
-    }, [])
-
-    const defaultOverviewData = {
-        tenantName: 'John Doe',
-        nameOnId: 'John May Doe',
-        employerNames: ['Company A', 'Company B'],
-        totalAnnualIncome: '$60,000',
-        timeEmployed: '2 years',
-        stateIDIssued: 'California',
-        passedIDCheck: true
-    };
+    }, []);
 
     const defaultPayStubsData = [
         {
@@ -68,15 +62,15 @@ export default function TenantProfile() {
                         <tbody>
                             <tr>
                                 <td>Employer</td>
-                                <td>{defaultOverviewData.employerNames.join(', ')}</td>
+                                <td>{payrollOverview?.employerName}</td>
                             </tr>
                             <tr>
-                                <td>Total Annual Income</td>
-                                <td>{defaultOverviewData.totalAnnualIncome}</td>
+                                <td>Income from payroll</td>
+                                <td>{payrollOverview?.payAmount} / {payrollOverview?.payRate}</td>
                             </tr>
                             <tr>
                                 <td>Time Employed at Employer</td>
-                                <td>{defaultOverviewData.timeEmployed}</td>
+                                <td>{payrollOverview?.timeEmployed}</td>
                             </tr>
                             {idInfo && 
                             <tr>
@@ -117,11 +111,11 @@ export default function TenantProfile() {
             <Row>
                 <Col>
                     <h2>Pay Stubs</h2>
+                    { paystubs && 
                     <Table striped bordered>
                         <thead>
                             <tr>
-                                <th>Payroll Provider</th>
-                                <th>Pay Data</th>
+                                <th>Pay Date</th>
                                 <th>Pay Period</th>
                                 <th>Gross Pay</th>
                                 <th>Net Pay</th>
@@ -130,19 +124,19 @@ export default function TenantProfile() {
                             </tr>
                         </thead>
                         <tbody>
-                            {defaultPayStubsData.map((stub, index) => (
+                            {paystubs.map((stub, index) => (
                                 <tr key={index}>
-                                    <td>{stub.payrollProvider}</td>
-                                    <td>{stub.payData}</td>
+                                    <td>{stub.payDate}</td>
                                     <td>{stub.payPeriod}</td>
                                     <td>{stub.grossPay}</td>
                                     <td>{stub.netPay}</td>
-                                    <td>{stub.bankAccount}</td>
+                                    <td>{stub.distribution.toString()}</td>
                                     <td><Button variant="primary">View</Button></td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
+                    }
                 </Col>
             </Row>
 

@@ -37,10 +37,18 @@ export interface PayrollOverview {
 export interface Paystub {
     payDate: string,
     payPeriod: string,
-    grossPay: string,
-    netPay: string,
-    bankAccounts: string[],
+    grossPay: number,
+    netPay: number,
+    distribution: PaytsubDistribution[],
     documentId: string,
+    isoCurrencyCode: string,
+}
+
+export interface PaytsubDistribution {
+    bankName: string,
+    mask: string,
+    amount: number,
+    isoCurrencyCode: string,
 }
 
 export interface W2 {
