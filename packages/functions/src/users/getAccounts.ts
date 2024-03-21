@@ -54,7 +54,8 @@ export const main = handler(async (event) => {
     let employers = new Map();
     payStubsForAccounts.map((paystub) => {
         const paystubData = paystub.data as CreditPayStub;
-        if(paystubData.employer) {
+        if(paystubData.employer && paystubData.employer.name) {
+            // console.log(JSON.stringify(paystubData.employer));
             employers.set(paystubData.employer.name, paystubData.employer);
         }
     });
@@ -63,12 +64,17 @@ export const main = handler(async (event) => {
         console.info(`Found multiple employers from paystubs for userId: ${user.userId} and payrollItemId: ${payrollItem.itemId}`);
     }
 
-    const employer = employers.get(employers.keys().next().value) as CreditPayStubEmployer;
+    let employer = null;
+    if(employers.size > 0) {
+        // select the first employer - we're assuming that each payroll account can have just one real employer
+        // but Plaid's data structure makes it possible to have multiple for some reason.
+        employer = employers.get(employers.keys().next().value) as CreditPayStubEmployer;
+    }
     
     const payrollOveriew: PayrollOverview = {
-        employerName: employer.name!,
-        employerAddressLine1: employer.address.street!,
-        employerAddressLine2: `${employer.address.city}, ${employer.address.region}, ${employer.address.country}\n${employer.address.postal_code}`,
+        employerName: employer ? employer.name! : "",
+        employerAddressLine1: employer ? employer.address.street! : "",
+        employerAddressLine2: employer ? `${employer.address.city}, ${employer.address.region}, ${employer.address.country}\n${employer.address.postal_code}` : "",
         timeEmployed: "2 years",
         payAmount: payrollAccounts[0].payAmount,
         payFrequency: payrollAccounts[0].payFrequency,

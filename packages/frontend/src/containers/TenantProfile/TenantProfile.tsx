@@ -26,25 +26,6 @@ export default function TenantProfile() {
         onLoad();
     }, []);
 
-    const defaultPayStubsData = [
-        {
-            payrollProvider: 'Provider A',
-            payData: '01/01/2024',
-            payPeriod: 'Weekly',
-            grossPay: '$1,500',
-            netPay: '$1,200',
-            bankAccount: 'Bank of America - 1234',
-        },
-        {
-            payrollProvider: 'Provider B',
-            payData: '01/15/2024',
-            payPeriod: 'Bi-weekly',
-            grossPay: '$2,000',
-            netPay: '$1,600',
-            bankAccount: 'Chase Bank - 5678',
-        }
-    ];
-
     return (
         <div className="TenantProfile">
             <h2>Tenant Profile</h2>

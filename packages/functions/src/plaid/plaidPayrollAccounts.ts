@@ -8,6 +8,8 @@ import { PlaidApi } from "plaid";
 import fetch from "node-fetch";
 import { Readable } from "stream";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import AWS from "aws-sdk";
 
 export async function getPlaidPayrollAccounts(userId: string) {
     // making use of /plaid/credit/payroll_income/get
@@ -105,7 +107,10 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     // we're expecting just one payroll item
     // console.log(`payroll items length=${creditPayrollIncomeGetResponse.data.items.length}`);
     // console.log(JSON.stringify(creditPayrollIncomeGetResponse.data.items))
-    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items.at(-1)!;
+    if(!creditPayrollIncomeGetResponse.data.items){
+        throw "No payroll items found!";
+    }
+    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items.reduce((prev, current) => (prev && prev.updated_at! > current.updated_at!) ? prev : current);
     // console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
     // insert payrollItem details into table {plaidPayrollItems}
     const putPlaidPayrollItemDetailsParams = {
@@ -167,14 +172,14 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                 TableName: Table.PlaidPayStubsForAccounts.tableName,
                 Item: {
                     accountId: accountId,
-                    documentId: payStub.document_id,
+                    documentId: payStub.document_metadata.name,
                     documentUrl: payStub.document_metadata.download_url,
                     data: payStub,
                 },
             };
             await dynamodb.put(putPlaidPayStubsForAccountsParams);
             payStubsForAccounts.push(putPlaidPayStubsForAccountsParams.Item);
-            imagesToFetch.set(payStub.document_id!, payStub.document_metadata.download_url!);
+            imagesToFetch.set(payStub.document_metadata.name!, payStub.document_metadata.download_url!);
             employerNamesPaystub.push(payStub.employer.name);
         }
     }
@@ -211,20 +216,35 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
             continue;
         }
         logJSON("document_url=", document_url);
+        logJSON("document_id=", document_id);
         const downloadResponse = await fetch(document_url);
         if(!downloadResponse.ok) {
             throw `Failed to fetch image ${downloadResponse.statusText}`;
         }
-        const buffer = Buffer.from(await downloadResponse.arrayBuffer());
+        console.log(`response size = ${downloadResponse.size}`);
+        const arrayBuffer = await downloadResponse.arrayBuffer();
+        console.log(`arrayBuffer size = ${arrayBuffer.byteLength}`);
+        const buffer = Buffer.from(arrayBuffer);
+        console.log(`buffer size = ${buffer.byteLength}`);
+        const stream = bufferToStream(buffer);
 
-        const uploadToBucketCommand = new PutObjectCommand({
+        // // const uploadToBucketCommand = new PutObjectCommand({
+        // //     Bucket: Bucket.Uploads.bucketName,
+        // //     Key: document_id,
+        // //     Body: stream,
+        // //     // Body: buffer,
+        // //     ContentType: "application/pdf",
+        // //     ContentLength: buffer.byteLength,
+        // // });
+        // // await s3client.put(uploadToBucketCommand);
+        const s3 = new AWS.S3();
+        const result = await s3.upload({
             Bucket: Bucket.Uploads.bucketName,
             Key: document_id,
-            // Body: bufferToStream(buffer),
-            Body: buffer,
-            ContentType: "application/pdf",
-        });
-        await s3client.put(uploadToBucketCommand);
+            Body: stream,
+            // ContentType: "application/pdf",
+        }).promise();
+        console.log(JSON.stringify(result));
     }
 
     // update user records to show income connected
@@ -235,7 +255,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         },
         UpdateExpression: "SET incomeConnected = :incomeConnected",
         ExpressionAttributeValues: {
-            ":incomeConnected": true,
+            ":incomeConnected": false,
         },
     };
     await dynamodb.update(updatePlaidUserRecordsParams);
