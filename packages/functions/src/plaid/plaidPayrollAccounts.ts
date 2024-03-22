@@ -10,6 +10,7 @@ import { Readable } from "stream";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import AWS from "aws-sdk";
+import AdmZip from "adm-zip";
 
 export async function getPlaidPayrollAccounts(userId: string) {
     // making use of /plaid/credit/payroll_income/get
@@ -221,28 +222,26 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         if(!downloadResponse.ok) {
             throw `Failed to fetch image ${downloadResponse.statusText}`;
         }
-        console.log(`response size = ${downloadResponse.size}`);
-        const arrayBuffer = await downloadResponse.arrayBuffer();
-        console.log(`arrayBuffer size = ${arrayBuffer.byteLength}`);
-        const buffer = Buffer.from(arrayBuffer);
-        console.log(`buffer size = ${buffer.byteLength}`);
-        const stream = bufferToStream(buffer);
-
-        // // const uploadToBucketCommand = new PutObjectCommand({
-        // //     Bucket: Bucket.Uploads.bucketName,
-        // //     Key: document_id,
-        // //     Body: stream,
-        // //     // Body: buffer,
-        // //     ContentType: "application/pdf",
-        // //     ContentLength: buffer.byteLength,
-        // // });
-        // // await s3client.put(uploadToBucketCommand);
+        const zipArrayBuffer = await downloadResponse.arrayBuffer();
+        const zipBuffer = Buffer.from(zipArrayBuffer);
+        const zip = new AdmZip(zipBuffer);
+        let pdfBuffer = null;
+        for(const zipEntry of zip.getEntries()) {
+            console.log(`zip entry for ${document_id} = ${zipEntry.entryName}`);
+            if(zipEntry.entryName == document_id){
+                console.log("found matching entry");
+                pdfBuffer = zipEntry.getData();
+            }
+        }
+        if(!pdfBuffer) {
+            throw "did not find a matching entry";
+        }
+        const stream = bufferToStream(pdfBuffer);
         const s3 = new AWS.S3();
         const result = await s3.upload({
             Bucket: Bucket.Uploads.bucketName,
             Key: document_id,
             Body: stream,
-            // ContentType: "application/pdf",
         }).promise();
         console.log(JSON.stringify(result));
     }
