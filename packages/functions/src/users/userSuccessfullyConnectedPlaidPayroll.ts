@@ -1,6 +1,7 @@
 import handler from "@mox-rental-tools-vanilla/core/handler";
 import verifyRequestUser from "src/verifyRequestUser";
 import { editStatusDetail, getUserOnboardingStatus, updateUserOnboardingStatus } from "./onboardingStatus";
+import { getPlaidPayrollAccounts } from "src/plaid/plaidPayrollAccounts";
 
 export const main = handler(async (event) => {
     verifyRequestUser(event);
@@ -8,5 +9,6 @@ export const main = handler(async (event) => {
     const currentStatus = await getUserOnboardingStatus(user.userId);
     const updatedStatusDetail = editStatusDetail(currentStatus.statusDetail, "payroll_linked");
     updateUserOnboardingStatus(user.userId, currentStatus.status, updatedStatusDetail);
+    await getPlaidPayrollAccounts(user.userId);
     return "";
 });

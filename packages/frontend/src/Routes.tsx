@@ -12,7 +12,7 @@ import StripePurchase from "./containers/Onboarding/StripePurchase.tsx";
 import StripeIDVerification from "./containers/Onboarding/StripeIDVerification.tsx";
 import PlaidPayrollLink from "./containers/Onboarding/tenant/PlaidPayrollLink.tsx";
 import PlaidAuthLink from "./containers/Onboarding/tenant/PlaidAuthLink.tsx";
-import TenantProfile from "./containers/TenantProfile.tsx";
+import TenantProfile from "./containers/TenantProfile/TenantProfile.tsx";
 import ForgotPassword from "./containers/Authentication/ForgotPassword.tsx";
 import TenantSetup from "./containers/Onboarding/tenant/TenantSetup.tsx";
 import AgentSetup from "./containers/Onboarding/agent/AgentSetup.tsx";

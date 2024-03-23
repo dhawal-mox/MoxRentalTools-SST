@@ -8,6 +8,9 @@ import { PlaidApi } from "plaid";
 import fetch from "node-fetch";
 import { Readable } from "stream";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import AWS from "aws-sdk";
+import AdmZip from "adm-zip";
 
 export async function getPlaidPayrollAccounts(userId: string) {
     // making use of /plaid/credit/payroll_income/get
@@ -35,8 +38,6 @@ export async function getPlaidPayrollAccounts(userId: string) {
         const result = fetchPlaidPayrollAccounts(userId, plaidClient, plaidUserRecord);
         return result;
     }
-
-    return {};
 }
 
 function logJSON(s: string, ob: any){
@@ -105,8 +106,13 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         user_token: userToken,
     });
     // we're expecting just one payroll item
-    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items[0];
-    console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
+    // console.log(`payroll items length=${creditPayrollIncomeGetResponse.data.items.length}`);
+    // console.log(JSON.stringify(creditPayrollIncomeGetResponse.data.items))
+    if(!creditPayrollIncomeGetResponse.data.items){
+        throw "No payroll items found!";
+    }
+    const plaidPayrollItem = creditPayrollIncomeGetResponse.data.items.reduce((prev, current) => (prev && prev.updated_at! > current.updated_at!) ? prev : current);
+    // console.log(`payroll item = ${JSON.stringify(plaidPayrollItem)}`);
     // insert payrollItem details into table {plaidPayrollItems}
     const putPlaidPayrollItemDetailsParams = {
         TableName: Table.PlaidPayrollItemDetails.tableName,
@@ -129,6 +135,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
     // 2. insert w2 details for each account into table {plaidPayrollAccountW2s}
     let taxW2ForAccounts: any[] = [];
     let employerNamesW2: any[] = [];
+    let employerNamesPaystub: any[] = [];
     let payrollAccounts: any[] = [];
     let payStubsForAccounts: any[] = [];
     let imagesToFetch: Map<string,string> = new Map();
@@ -147,7 +154,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                     Item: {
                         accountId: accountId,
                         documentId: w2Data.document_id,
-                        documentUrl: w2Data.document_metadata.download_url,
+                        documentUrl: w2Data.document_metadata.download_url || "",
                         data: w2Data,
                     },
                 };
@@ -155,6 +162,26 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                 taxW2ForAccounts.push(putPlaidPayrollW2sForAccountParams.Item);
                 imagesToFetch.set(w2Data.document_id, w2Data.document_metadata.download_url!);
             }
+        }
+    }
+
+    // 3. insert all paystubs into table {plaidPayStubsForAccounts}
+    for(const payrollIncome of plaidPayrollItem.payroll_income){
+        const accountId = payrollIncome.account_id!;
+        for(const payStub of payrollIncome.pay_stubs) {
+            const putPlaidPayStubsForAccountsParams = {
+                TableName: Table.PlaidPayStubsForAccounts.tableName,
+                Item: {
+                    accountId: accountId,
+                    documentId: payStub.document_metadata.name,
+                    documentUrl: payStub.document_metadata.download_url,
+                    data: payStub,
+                },
+            };
+            await dynamodb.put(putPlaidPayStubsForAccountsParams);
+            payStubsForAccounts.push(putPlaidPayStubsForAccountsParams.Item);
+            imagesToFetch.set(payStub.document_metadata.name!, payStub.document_metadata.download_url!);
+            employerNamesPaystub.push(payStub.employer.name);
         }
     }
 
@@ -168,29 +195,11 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
                 payRate: payrollAccount.rate_of_pay.pay_rate,
                 payFrequency: payrollAccount.pay_frequency,
                 employerNamesW2: employerNamesW2,
+                employerNamesPaystub: employerNamesPaystub,
             },
         }
         await dynamodb.put(putPlaidPayrollAccountParams);
         payrollAccounts.push(putPlaidPayrollAccountParams.Item);
-    }
-
-    // 3. insert all paystubs into table {plaidPayStubsForAccounts}
-    for(const payrollIncome of plaidPayrollItem.payroll_income){
-        const accountId = payrollIncome.account_id!;
-        for(const payStub of payrollIncome.pay_stubs) {
-            const putPlaidPayStubsForAccountsParams = {
-                TableName: Table.PlaidPayStubsForAccounts.tableName,
-                Item: {
-                    accountId: accountId,
-                    documentId: payStub.document_id,
-                    documentUrl: payStub.document_metadata.download_url,
-                    data: payStub,
-                },
-            };
-            await dynamodb.put(putPlaidPayStubsForAccountsParams);
-            payStubsForAccounts.push(putPlaidPayStubsForAccountsParams.Item);
-            imagesToFetch.set(payStub.document_id!, payStub.document_metadata.download_url!);
-        }
     }
 
     // Function to convert a Buffer into a ReadableStream
@@ -207,21 +216,34 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         if(!document_url) {
             continue;
         }
-        logJSON("document_url=", document_url);
+        // logJSON("document_url=", document_url);
+        // logJSON("document_id=", document_id);
         const downloadResponse = await fetch(document_url);
         if(!downloadResponse.ok) {
             throw `Failed to fetch image ${downloadResponse.statusText}`;
         }
-        const buffer = Buffer.from(await downloadResponse.arrayBuffer());
-
-        const uploadToBucketCommand = new PutObjectCommand({
+        const zipArrayBuffer = await downloadResponse.arrayBuffer();
+        const zipBuffer = Buffer.from(zipArrayBuffer);
+        const zip = new AdmZip(zipBuffer);
+        let pdfBuffer = null;
+        for(const zipEntry of zip.getEntries()) {
+            console.log(`zip entry for ${document_id} = ${zipEntry.entryName}`);
+            if(zipEntry.entryName == document_id){
+                // console.log("found matching entry");
+                pdfBuffer = zipEntry.getData();
+            }
+        }
+        if(!pdfBuffer) {
+            throw "did not find a matching entry";
+        }
+        const stream = bufferToStream(pdfBuffer);
+        const s3 = new AWS.S3();
+        const result = await s3.upload({
             Bucket: Bucket.Uploads.bucketName,
             Key: document_id,
-            // Body: bufferToStream(buffer),
-            Body: buffer,
-            ContentType: "application/pdf",
-        });
-        await s3client.put(uploadToBucketCommand);
+            Body: stream,
+        }).promise();
+        // console.log(JSON.stringify(result));
     }
 
     // update user records to show income connected

@@ -44,7 +44,6 @@ export const main = handler(async (event) => {
                     'verified_outputs',
                     'last_verification_report.document.expiration_date',
                     'last_verification_report.document.number',
-                    'last_verification_report.id_number.id_number',
                 ],
             },
         );

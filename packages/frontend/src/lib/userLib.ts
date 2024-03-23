@@ -100,3 +100,12 @@ export async function agentSetLicenseInfo(user: UserType, data: any) {
         },
     })
 }
+
+export async function getDocumentLink(user: UserType, documentId: string) {
+    return API.post("mox", `/users/getDocumentLink`, {
+        body: {
+            user: user,
+            documentId: documentId,
+        },
+    });
+}

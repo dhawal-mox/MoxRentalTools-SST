@@ -1,5 +1,6 @@
 import dynamodb from "@mox-rental-tools-vanilla/core/dynamodb";
 import { Table } from "sst/node/table";
+import Stripe from "stripe";
 
 export async function getStripeIDVerificationResult(userId: string) {
     const getStripeIDVerificationResultParams = {
@@ -11,7 +12,8 @@ export async function getStripeIDVerificationResult(userId: string) {
     const result = await dynamodb.get(getStripeIDVerificationResultParams);
     let idVerificationResult = {};
     if(result.Item) {
-        idVerificationResult = result.Item.results;
+        // idVerificationResult = result.Item.results;
+        return result.Item.results as Stripe.Identity.VerificationReport;
     }
-    return idVerificationResult;
+    return idVerificationResult as Stripe.Identity.VerificationReport;
 }
