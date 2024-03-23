@@ -2,7 +2,7 @@ import { Api, Config, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
 export function ApiStack({ stack }: StackContext) {
-  const { usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
+  const { usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo, shareCodesTable,
     stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,
@@ -19,7 +19,7 @@ export function ApiStack({ stack }: StackContext) {
   const api = new Api(stack, "Api", {
     defaults: {
       function: {
-        bind: [usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
+        bind: [usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo, shareCodesTable,
               stripeCheckoutSessions, stripeIdentityVerificationSessions,
               plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
               plaidPayStubsForAccounts, plaidPayrollW2sForAccounts,

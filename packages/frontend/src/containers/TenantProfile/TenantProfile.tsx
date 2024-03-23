@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../lib/contextLib"
 import { getDocumentLink, getTenantProfile } from "../../lib/userLib";
-import { Badge, Button, Col, Container, Row, Table } from "react-bootstrap";
+import { Badge, Col, Container, Row, Table } from "react-bootstrap";
 import { BankAccount, IdInfo, PayrollOverview, Paystub } from "../../types/userAccountsTypes";
 import LoaderButton from "../../components/LoaderButton";
 

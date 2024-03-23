@@ -3,6 +3,7 @@ import handler from "@mox-rental-tools-vanilla/core/handler";
 import dynamoDb from "@mox-rental-tools-vanilla/core/dynamodb";
 import verifyRequestUser from "src/verifyRequestUser";
 import { updateUserOnboardingStatus } from "./onboardingStatus";
+import ShortUniqueId from "short-unique-id";
 
 export const main = handler(async (event) => {
   verifyRequestUser(event);
@@ -23,6 +24,17 @@ export const main = handler(async (event) => {
   };
 
   await dynamoDb.update(params);
+
+  // create share code
+  const putShareCodeParams = {
+    TableName: Table.ShareCodes.tableName,
+    Item: {
+      shareCode: `${data.userRole}-${(new ShortUniqueId({ length: 6}).rnd())}`,
+      ownerId: user.userId,
+      createdAt: Date.now(),
+    },
+  };
+  await dynamoDb.put(putShareCodeParams);
 
   // update user onboarding status
   await updateUserOnboardingStatus(user.userId, "selected_role", "");

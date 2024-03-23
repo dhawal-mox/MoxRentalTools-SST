@@ -43,6 +43,20 @@ export function StorageStack({ stack }: StackContext) {
     primaryIndex: { partitionKey: "userId" },
   });
 
+  const shareCodesTable = new Table(stack, "ShareCodes", {
+    fields: {
+      shareCode: "string",
+      ownerId: "string",
+      createdAt: "string",
+    },
+    primaryIndex: { partitionKey: "shareCode" },
+    globalIndexes: {
+      ownerIdIndex: { partitionKey: "ownerId" },
+    },
+  });
+
+
+
   const stripeCheckoutSessions = new Table(stack, "StripePurchases", {
     fields: {
       userId: "string",
@@ -191,7 +205,7 @@ export function StorageStack({ stack }: StackContext) {
   const bucket = new Bucket(stack, "Uploads");
 
   return {
-    usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo,
+    usersTable, userIdentityTable, userOnboardingStatusTable, agentLicenseInfo, shareCodesTable,
     stripeCheckoutSessions, stripeIdentityVerificationSessions,
     plaidUserRecords, plaidPayrollItemIds, plaidPayrollItemDetails, plaidPayrollAccounts,
     plaidPayrollW2sForAccounts, plaidPayStubsForAccounts,
