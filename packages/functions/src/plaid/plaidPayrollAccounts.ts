@@ -216,8 +216,8 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         if(!document_url) {
             continue;
         }
-        logJSON("document_url=", document_url);
-        logJSON("document_id=", document_id);
+        // logJSON("document_url=", document_url);
+        // logJSON("document_id=", document_id);
         const downloadResponse = await fetch(document_url);
         if(!downloadResponse.ok) {
             throw `Failed to fetch image ${downloadResponse.statusText}`;
@@ -229,7 +229,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         for(const zipEntry of zip.getEntries()) {
             console.log(`zip entry for ${document_id} = ${zipEntry.entryName}`);
             if(zipEntry.entryName == document_id){
-                console.log("found matching entry");
+                // console.log("found matching entry");
                 pdfBuffer = zipEntry.getData();
             }
         }
@@ -243,7 +243,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
             Key: document_id,
             Body: stream,
         }).promise();
-        console.log(JSON.stringify(result));
+        // console.log(JSON.stringify(result));
     }
 
     // update user records to show income connected
@@ -254,7 +254,7 @@ async function fetchPlaidPayrollAccounts(userId: string, plaidClient: PlaidApi, 
         },
         UpdateExpression: "SET incomeConnected = :incomeConnected",
         ExpressionAttributeValues: {
-            ":incomeConnected": false,
+            ":incomeConnected": true,
         },
     };
     await dynamodb.update(updatePlaidUserRecordsParams);

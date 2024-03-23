@@ -44,6 +44,7 @@ export function ApiStack({ stack }: StackContext) {
       "POST /users/userSuccessfullySubmittedId": "packages/functions/src/users/userSuccessfullySubmittedId.main",
       "POST /users/userSuccessfullyConnectedPlaidAuth": "packages/functions/src/users/userSuccessfullyConnectedPlaidAuth.main",
       "POST /users/userSuccessfullyConnectedPlaidPayroll": "packages/functions/src/users/userSuccessfullyConnectedPlaidPayroll.main",
+      "POST /users/getDocumentLink": "packages/functions/src/users/getDocumentLink.main",
 
       "POST /agent/submitLicenseInfo": "packages/functions/src/agent/submitLicenseInfo.main",
 

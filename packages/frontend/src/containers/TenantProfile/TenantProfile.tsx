@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../lib/contextLib"
-import { getTenantProfile } from "../../lib/userLib";
+import { getDocumentLink, getTenantProfile } from "../../lib/userLib";
 import { Badge, Button, Col, Container, Row, Table } from "react-bootstrap";
 import { BankAccount, IdInfo, PayrollOverview, Paystub } from "../../types/userAccountsTypes";
+import LoaderButton from "../../components/LoaderButton";
 
 export default function TenantProfile() {
     const { user } = useAppContext();
@@ -10,21 +11,37 @@ export default function TenantProfile() {
     const [ idInfo, setIdInfo ] = useState<IdInfo>();
     const [ payrollOverview, setPayrollOverview ] = useState<PayrollOverview>();
     const [ paystubs, setPaystubs ] = useState<Paystub[]>();
+    const [ loadingDocumentId, setLoadingDocumentId ] = useState<string>();
     
     async function onLoad() {
-        // const userProfile = await getTenantProfile(user);
-        // console.log(userProfile);
         const result = await getTenantProfile(user);
         setBankAccounts(result.bankAccounts);
         setIdInfo(result.idInfo);
         setPayrollOverview(result.payrollOverview);
         setPaystubs(result.paystubs);
+        setLoadingDocumentId("");
         console.log(result);
+    }
+
+    function formatCurrency(value: number) {
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD"}).format(value);
     }
 
     useEffect(() => {
         onLoad();
     }, []);
+
+    async function viewDocument(documentId: string) {
+        setLoadingDocumentId(documentId);
+        const documentUrl = await getDocumentLink(user, documentId);
+        setLoadingDocumentId("");
+        const downloadLink = document.createElement('a');
+        downloadLink.href = documentUrl.documentUrl;
+        downloadLink.download = 'paystub.pdf'; // You can set custom filename here
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
 
     return (
         <div className="TenantProfile">
@@ -35,6 +52,7 @@ export default function TenantProfile() {
                 <Col>
                     <h2>{user.first_name} {user.last_name}</h2>
                     <p>Name on ID: {idInfo?.name}</p>
+                    <p>Name on Payroll Account: {payrollOverview?.employeeName}</p>
 
                 </Col>
                 <Col>
@@ -47,12 +65,14 @@ export default function TenantProfile() {
                             </tr>
                             <tr>
                                 <td>Income from payroll</td>
-                                <td>{payrollOverview?.payAmount} / {payrollOverview?.payRate}</td>
+                                <td>{formatCurrency(payrollOverview?.payAmount!)} / {payrollOverview?.payRate}</td>
                             </tr>
+                            {payrollOverview && payrollOverview?.timeEmployed != "" && 
                             <tr>
                                 <td>Time Employed at Employer</td>
                                 <td>{payrollOverview?.timeEmployed}</td>
                             </tr>
+                            }
                             {idInfo && 
                             <tr>
                                 <td>State where ID is issued</td>
@@ -100,8 +120,8 @@ export default function TenantProfile() {
                                 <th>Pay Period</th>
                                 <th>Gross Pay</th>
                                 <th>Net Pay</th>
-                                <th>Bank Account</th>
-                                <th>Action</th>
+                                <th>Deposit Distribution</th>
+                                <th>View</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,10 +129,14 @@ export default function TenantProfile() {
                                 <tr key={index}>
                                     <td>{stub.payDate}</td>
                                     <td>{stub.payPeriod}</td>
-                                    <td>{stub.grossPay}</td>
-                                    <td>{stub.netPay}</td>
-                                    <td>{stub.distribution.toString()}</td>
-                                    <td><Button variant="primary">View</Button></td>
+                                    <td>{formatCurrency(stub.grossPay)}</td>
+                                    <td>{formatCurrency(stub.netPay)}</td>
+                                    <td>{stub.distribution.length > 0 ? stub.distribution.toString() : "Not available."}</td>
+                                    <td><LoaderButton 
+                                    variant="primary"
+                                    onClick={() => viewDocument(stub.documentId)}
+                                    isLoading={loadingDocumentId == stub.documentId}
+                                    >Download</LoaderButton></td>
                                 </tr>
                             ))}
                         </tbody>
@@ -144,8 +168,8 @@ export default function TenantProfile() {
                                     <td>{account.bankInstitution}</td>
                                     <td>{account.accountName}</td>
                                     <td>{account.accountType}</td>
-                                    <td>{account.currentBalance}</td>
-                                    <td>{account.availableBalance}</td>
+                                    <td>{formatCurrency(account.currentBalance)}</td>
+                                    <td>{formatCurrency(account.availableBalance)}</td>
                                     <td>{account.last4Digits}</td>
                                     <td>{new Date(account.currentAsOfDate).toDateString()}</td>
                                 </tr>

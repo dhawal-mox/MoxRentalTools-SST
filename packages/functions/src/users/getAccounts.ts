@@ -19,8 +19,8 @@ export const main = handler(async (event) => {
             bankInstitution: institutionName,
             accountName: account.officialName || account.name,
             accountType: `${account.type}, ${account.subtype}`,
-            currentBalance: `\$${account.currentBalance}`,
-            availableBalance: `\$${account.availableBalance}`,
+            currentBalance: account.currentBalance,
+            availableBalance: account.availableBalance,
             last4Digits: `${account.mask}`,
             currentAsOfDate: account.lastUpdatedAt,
         }
@@ -52,16 +52,23 @@ export const main = handler(async (event) => {
 
     // 1. payrollOverview
     let employers = new Map();
+    let employees: string[] = [];
     payStubsForAccounts.map((paystub) => {
         const paystubData = paystub.data as CreditPayStub;
         if(paystubData.employer && paystubData.employer.name) {
             // console.log(JSON.stringify(paystubData.employer));
             employers.set(paystubData.employer.name, paystubData.employer);
         }
+        if(paystubData.employee && paystubData.employee.name) {
+            employees.push(paystubData.employee.name);
+        }
     });
     
     if(employers.size > 1){
         console.info(`Found multiple employers from paystubs for userId: ${user.userId} and payrollItemId: ${payrollItem.itemId}`);
+    }
+    if(new Set(employees).size > 1){
+        console.info(`Found multiple employees from paystubs for userId: ${user.userId} and payrollItemId: ${payrollItem.itemId}`);
     }
 
     let employer = null;
@@ -70,18 +77,25 @@ export const main = handler(async (event) => {
         // but Plaid's data structure makes it possible to have multiple for some reason.
         employer = employers.get(employers.keys().next().value) as CreditPayStubEmployer;
     }
+    let employeeName = "";
+    if(employees.length > 0) {
+        // select the first employer - we're assuming that each payroll account can have just one real employer
+        // but Plaid's data structure makes it possible to have multiple for some reason.
+        employeeName = employees[0];
+    }
     
     const payrollOveriew: PayrollOverview = {
         employerName: employer ? employer.name! : "",
         employerAddressLine1: employer ? employer.address.street! : "",
         employerAddressLine2: employer ? `${employer.address.city}, ${employer.address.region}, ${employer.address.country}\n${employer.address.postal_code}` : "",
-        timeEmployed: "2 years",
+        employeeName: employeeName,
+        timeEmployed: "",
         payAmount: payrollAccounts[0].payAmount,
         payFrequency: payrollAccounts[0].payFrequency,
         payRate: payrollAccounts[0].payRate,
         payrollProvider: payrollItem.institutionName,
         lastUpdatedAt: payrollItem.updatedAt,
-    }
+    };
 
     // paystubs
     let paystubs: Paystub[] = [];
@@ -101,15 +115,10 @@ export const main = handler(async (event) => {
                     mask: distribution.mask!,
                 }
             }),
-            documentId: paystubData.document_metadata.download_url ? paystubData.document_id! : "",
+            documentId: paystubData.document_metadata.download_url ? paystubFromDb.documentId! : "",
         }
         paystubs.push(paystub);
-    })
-    // return JSON.stringify({
-    //     authAccounts: authAccounts,
-    //     payrollAccounts: payrollAccounts,
-    //     idVerificationResult: idVerificationResult,
-    // });
+    });
 
     return JSON.stringify({
         bankAccounts: bankAccounts,
