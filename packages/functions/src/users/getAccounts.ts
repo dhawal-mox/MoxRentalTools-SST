@@ -3,6 +3,7 @@ import { CreditPayStub, CreditPayStubEmployer } from "plaid";
 import { getPlaidAuthAccounts } from "src/plaid/plaidAuthAccounts";
 import { getPlaidPayrollAccounts } from "src/plaid/plaidPayrollAccounts";
 import { getStripeIDVerificationResult } from "src/stripe/getIdVerificationResult";
+import { getShareCodeForUser } from "src/util/shareCode";
 import { BankAccount, IdInfo, PayrollOverview, Paystub } from "src/util/userAccountsTypes";
 import verifyRequestUser from "src/verifyRequestUser";
 import Stripe from "stripe";
@@ -120,11 +121,13 @@ export const main = handler(async (event) => {
         paystubs.push(paystub);
     });
 
+    const shareCode = await getShareCodeForUser(user.userId);
+
     return JSON.stringify({
         bankAccounts: bankAccounts,
         idInfo: idInfo,
         payrollOverview: payrollOveriew,
         paystubs: paystubs,
-        // payrollAccounts: payrollAccounts,
-    })
+        shareCode: shareCode,
+    });
 });

@@ -56,3 +56,19 @@ export interface W2 {
     taxYear: string,
     documentId: string,
 }
+
+export interface NonTenantProfile {
+    user: any,
+    id: {
+        name: string,
+        selfieVerified: boolean,
+        documentVerified: boolean,
+    },
+    license?: {
+        licenseNumber: string,
+        stateOfLicensure: string,
+        typeOfLicense: string,
+        isLicenseRequired: string,
+        verified: boolean,
+    }
+}

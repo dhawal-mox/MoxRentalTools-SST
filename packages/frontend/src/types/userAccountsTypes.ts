@@ -1,3 +1,5 @@
+import { UserType } from "./user";
+
 export interface BankAccount {
     bankInstitution: string,
     accountName: string,
@@ -55,4 +57,20 @@ export interface PaytsubDistribution {
 export interface W2 {
     taxYear: string,
     documentId: string,
+}
+
+export interface NonTenantProfile {
+    user: UserType,
+    id: {
+        name: string,
+        selfieVerified: boolean,
+        documentVerified: boolean,
+    },
+    license?: {
+        licenseNumber: string,
+        stateOfLicensure: string,
+        typeOfLicense: string,
+        isLicenseRequired: string,
+        verified: boolean,
+    }
 }
