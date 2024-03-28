@@ -18,6 +18,7 @@ import TenantSetup from "./containers/Onboarding/tenant/TenantSetup.tsx";
 import AgentSetup from "./containers/Onboarding/agent/AgentSetup.tsx";
 import LicenseSubmit from "./containers/Onboarding/agent/LicenseSubmit.tsx";
 import LandlordSetup from "./containers/Onboarding/landlord/LandlordSetup.tsx";
+import ShareProfilePage from "./containers/ShareProfile.tsx";
 
 export default function Links() {
   return (
@@ -102,6 +103,11 @@ export default function Links() {
       <Route path="/tenantProfile" element={
         <AuthenticatedRoute>
           <TenantProfile />
+        </AuthenticatedRoute>
+      } />
+      <Route path="/share" element={
+        <AuthenticatedRoute>
+          <ShareProfilePage />
         </AuthenticatedRoute>
       } />
     </Routes>

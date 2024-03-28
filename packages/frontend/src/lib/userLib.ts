@@ -109,3 +109,20 @@ export async function getDocumentLink(user: UserType, documentId: string) {
         },
     });
 }
+
+export async function getUserForShareCode(user: UserType, shareCode: string) {
+    return API.post("mox", `/users/getUserForShareCode`, {
+        body: {
+            user: user,
+            shareCode: shareCode,
+        },
+    });
+}
+
+export async function getShareCodeForUserId(userId: string) {
+    return API.post("mox", `/users/getShareCodeForUserId`, {
+        body: {
+            userId: userId,
+        },
+    });
+}

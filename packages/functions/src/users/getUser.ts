@@ -20,3 +20,21 @@ export const main = handler(async (event) => {
     delete result.Item?.identityId;
     return JSON.stringify(result.Item);
 });
+
+export async function getUser(userId: string) {
+    const params = {
+        TableName: Table.Users.tableName,
+        Key: {
+            userId: userId,
+        },
+    };
+
+    const result = await dynamodb.get(params);
+    if (!result.Item) {
+        throw new Error("Item not found.");
+    }
+
+    // Return the retreived item
+    delete result.Item?.identityId;
+    return result.Item;
+}
